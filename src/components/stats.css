@@ -1,0 +1,15 @@
+.stats-container {
+    display: flex;
+    justify-content: space-around;
+    padding: 1rem 1.5rem;
+    background-color: #ffffff;
+    border-radius: 1rem;
+    width: 92.5%;
+    margin: 1rem auto 0;
+}
+  
+.vertical-hr{
+    background-color: #F0F0F0;
+    border: none;
+    width: 0.1rem;
+}

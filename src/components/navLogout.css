@@ -1,0 +1,21 @@
+.navLogout{
+    position: absolute;
+    bottom: 1.5rem;
+}
+
+
+.navLogout span{
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: red;
+    display: inline-block;
+    cursor: pointer; 
+}
+
+span:hover{
+    transform: scale(1.02);
+}
+
+span i{
+    margin-right: 0.2rem;
+}

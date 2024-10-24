@@ -1,0 +1,21 @@
+.menu-bar{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 4rem;
+    width: 95vw;
+    background-color: #F6FAFD;
+    color:black;
+    border-bottom: 0.1rem solid #EAEEF4;  
+}
+
+.profile-img img{
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    margin-right: 2vw;
+}
+
+.menu-bar h2{
+    margin-left: 2vw;
+}

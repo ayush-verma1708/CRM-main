@@ -1,0 +1,24 @@
+.filterModal-bg{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.filterModal-container{
+    width: 60vw;
+    height: 40rem;
+    background-color: #EDECE8;
+    color: black;
+    font-weight: 600;
+    border-radius: 1.25rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+}

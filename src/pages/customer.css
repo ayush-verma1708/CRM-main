@@ -1,0 +1,13 @@
+.customer-body {
+  display: flex;
+  flex-direction: column;
+  background-color: #F6FAFD;
+}
+  
+.customer-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  gap: 1.5rem;
+  overflow-y: hidden;
+}

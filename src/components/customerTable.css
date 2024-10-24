@@ -1,0 +1,87 @@
+.customer-table-container {
+  background-color: #ffffff;
+  border-radius: 1rem;
+  margin: 0 auto 1rem;
+  padding: 1rem 1.5rem;
+  width: 92.5%;
+  overflow-y: auto;
+}
+
+.customer-table-container::-webkit-scrollbar{
+  display: none;
+}
+  
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.leftHeader{
+  display: flex;
+  flex-direction: column;
+  gap:0.5rem;
+}
+
+.rightHeader{
+  display:flex;
+  align-items: center;
+  justify-content: space-around;
+  width:30rem;
+}
+  
+.search-bar {
+  padding: 0.5rem;
+  border: 0.1rem solid #ccc;
+  border-radius: 0.5rem;
+  width: 12.5rem;
+}
+  
+.customer-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+  
+.customer-table th,
+.customer-table td {
+  padding: 1rem 0.5rem;
+  text-align: left;
+  border-bottom: 0.1rem solid #ddd;
+  /* text-wrap:nowrap; */
+}
+
+.customer-table th {
+  color:#B5B7C0;
+  font-weight: 400;
+}
+  
+.edit-btn, .delete-btn, .notes-btn{
+  border:none;
+  background-color: white;
+  color:#B5B7C0;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.notes-btn i{
+  color: blue;
+}
+
+.edit-btn i{
+  color: green;
+}
+
+.delete-btn i{
+  color: red;
+}
+
+.search-customer{
+  display:flex;
+  gap:0.5rem;
+  align-items: center;
+}
+
+.search-customer i{
+  cursor: pointer;
+}

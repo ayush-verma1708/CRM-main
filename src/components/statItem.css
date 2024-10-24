@@ -1,0 +1,28 @@
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap:2rem;
+  text-align: left;
+}
+  
+.stat-icon {
+  color: #00AC4F;
+  background-color: #D3FFE7;
+  border-radius: 50%;
+}
+
+.stat-icon i{
+  font-size: 3rem;
+  padding: 1.5rem;  
+}
+
+.stat-info h2 {
+  margin: 0.8rem 0;
+  font-size: 1.5rem;
+}
+  
+.stat-info p {
+  font-size: 1rem;
+  color: #888;
+}
+  

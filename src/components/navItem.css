@@ -1,0 +1,17 @@
+.round{
+    background-color: white;
+    border-radius: 50%;
+    width: 3rem;
+    height: 3rem;
+    border: 0.1rem solid #EAEEF4;
+}
+
+.nav-item i{
+    font-size: 1rem;
+    color: #7E92A2;
+    padding: 1rem;
+}
+
+.nav-item i:hover{
+    transform: scale(1.3);
+}
