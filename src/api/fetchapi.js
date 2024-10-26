@@ -14,6 +14,27 @@ export const fetchRecords = async (page = 1, limit = 10, search = '') => {
     throw error;
   }
 };
+// fetchapi.js
+
+export const fetchRecordById = async (id) => {
+  try {
+    const response = await fetch(`http://localhost:5000/records/${id}`);
+
+    // Check if response is not OK (status code outside of 2xx range)
+    if (!response.ok) {
+      const errorText = await response.text(); // Read the response text for debugging
+      throw new Error(
+        `HTTP error! status: ${response.status}, message: ${errorText}`
+      );
+    }
+
+    const data = await response.json(); // Parse JSON data
+    return data;
+  } catch (error) {
+    console.error('Error fetching record by ID:', error);
+    throw error; // Rethrow the error for handling in the calling function
+  }
+};
 
 // Create customer
 export const createCustomer = async (customerData) => {

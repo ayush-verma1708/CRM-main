@@ -7,11 +7,12 @@ import Dashboard from './pages/Dashboard';
 import Customer from './pages/Customer';
 import AccessRole from './pages/AccessRole';
 import SideNav from './components/SideNav';
+import CustomerDetails from './components/CustomerDetails';
 
 // ProtectedRoute example for authenticated pages
 const ProtectedRoute = ({ children }) => {
   const isAuthenticated = !!localStorage.getItem('token');
-  return isAuthenticated ? children : <Navigate to="/LoginForm" />;
+  return isAuthenticated ? children : <Navigate to='/LoginForm' />;
 };
 
 function App() {
@@ -20,18 +21,19 @@ function App() {
   const noSidebarPaths = ['/', '/LoginForm', '/SignupForm', '/Forgot'];
 
   return (
-    <div className="page">
+    <div className='page'>
       {!noSidebarPaths.includes(location.pathname) && <SideNav />}
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={<LoginForm />} />
-        <Route path="/LoginForm" element={<LoginForm />} />
-        <Route path="/Forgot" element={<Forgot />} />
-        <Route path="/SignupForm" element={<SignupForm />} />
+        <Route path='/' element={<LoginForm />} />
+        <Route path='/records/:id' element={<CustomerDetails />} />
+        <Route path='/LoginForm' element={<LoginForm />} />
+        <Route path='/Forgot' element={<Forgot />} />
+        <Route path='/SignupForm' element={<SignupForm />} />
 
         {/* Private Routes */}
         <Route
-          path="/Dashboard"
+          path='/Dashboard'
           element={
             <ProtectedRoute>
               <Dashboard />
@@ -39,7 +41,7 @@ function App() {
           }
         />
         <Route
-          path="/Customer"
+          path='/Customer'
           element={
             <ProtectedRoute>
               <Customer />
@@ -47,7 +49,7 @@ function App() {
           }
         />
         <Route
-          path="/AccessRole"
+          path='/AccessRole'
           element={
             <ProtectedRoute>
               <AccessRole />

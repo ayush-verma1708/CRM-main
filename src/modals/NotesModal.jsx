@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import './notesModal.css';
-
 const NotesModal = ({ setOpenNotesModal, initialNotes, onSave }) => {
   const [notes, setNotes] = useState(initialNotes || '');
 

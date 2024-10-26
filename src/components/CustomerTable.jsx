@@ -43,12 +43,6 @@ const CustomerTable = () => {
     fetchCustomers();
   }, [search]);
 
-  const handleEye = (id) => {
-    const customer = customers.find((customer) => customer.id === id);
-    setSelectedNotes(customer.notes);
-    setOpenNotesModal(true);
-  };
-
   const handleFilter = () => {
     setOpenFilterModal(true);
   };
@@ -76,6 +70,32 @@ const CustomerTable = () => {
     const customer = customers.find((customer) => customer.id === id);
     setCurrentCustomer(customer);
     setOpenUpdateDetailsModal(true);
+  };
+  const handleEye = (id) => {
+    const customer = customers.find((customer) => customer.id === id);
+    setSelectedNotes(customer.Notes); // Ensure you set the selected notes from the customer object
+    setCurrentCustomer(customer); // Keep track of the current customer for saving later
+    setOpenNotesModal(true);
+  };
+
+  // Add the onSave function to handle saving notes
+  const handleSaveNotes = async (updatedNotes) => {
+    try {
+      // Call your API to save the updated notes
+      const updatedCustomer = await updateCustomer(currentCustomer.id, {
+        Notes: updatedNotes,
+      });
+      console.log(updateCustomer);
+      // Update local state
+      setCustomers((prevCustomers) =>
+        prevCustomers.map((customer) =>
+          customer.id === updatedCustomer.id ? updatedCustomer : customer
+        )
+      );
+    } catch (err) {
+      console.error('Error updating notes:', err);
+      // Handle error appropriately, e.g., set an error state
+    }
   };
 
   const confirmUpdateDetails = async (updatedData) => {
@@ -125,6 +145,65 @@ const CustomerTable = () => {
       ) : error ? (
         <p>{error}</p>
       ) : (
+        // <table className='customer-table'>
+        //   <thead>
+        //     <tr>
+        //       <th>Name</th>
+        //       <th>Magazine</th>
+        //       <th>Amount</th>
+        //       <th>Insta Link</th>
+        //       <th>Email</th>
+        //       {/* <th>Lead Source</th> */}
+        //       <th>Notes</th>
+        //       <th>Edit</th>
+        //       <th>Delete</th>
+        //     </tr>
+        //   </thead>
+        //   <tbody>
+        //     {customers.map((customer) => (
+        //       <tr key={customer.id}>
+        //         <td>
+        //           <a
+        //             href={`/records/${customer.id}`}
+        //             style={{ color: 'inherit', textDecoration: 'none' }}
+        //           >
+        //             {customer.Name}
+        //           </a>
+        //         </td>
+        //         <td>{customer.Magazine}</td>
+        //         <td>{customer.Amount}</td>
+        //         {/* <td>{customer['Instagram Link'] || 'N/A'}</td>{' '} */}
+        //         <td>{customer.Instagram_link}</td> <td>{customer.Email}</td>
+        //         {/* <td>{customer.Lead_source}</td> */}
+        //         <td>{customer.Notes}</td>{' '}
+        //         <td>
+        //           <button
+        //             className='notes-btn'
+        //             onClick={() => handleEye(customer.id)}
+        //           >
+        //             <i className='fa-solid fa-eye'></i>
+        //           </button>
+        //         </td>
+        //         <td>
+        //           <button
+        //             className='edit-btn'
+        //             onClick={() => handleEdit(customer.id)}
+        //           >
+        //             <i className='fa-solid fa-pencil'></i>
+        //           </button>
+        //         </td>
+        //         <td>
+        //           <button
+        //             className='delete-btn'
+        //             onClick={() => handleDelete(customer.id)}
+        //           >
+        //             <i className='fa-solid fa-trash'></i>
+        //           </button>
+        //         </td>
+        //       </tr>
+        //     ))}
+        //   </tbody>
+        // </table>
         <table className='customer-table'>
           <thead>
             <tr>
@@ -133,7 +212,6 @@ const CustomerTable = () => {
               <th>Amount</th>
               <th>Insta Link</th>
               <th>Email</th>
-              {/* <th>Lead Source</th> */}
               <th>Notes</th>
               <th>Edit</th>
               <th>Delete</th>
@@ -142,13 +220,36 @@ const CustomerTable = () => {
           <tbody>
             {customers.map((customer) => (
               <tr key={customer.id}>
-                <td>{customer.Name}</td>
-                <td>{customer.Magazine}</td>
-                <td>{customer.Amount}</td>
-                {/* <td>{customer['Instagram Link'] || 'N/A'}</td>{' '} */}
-                <td>{customer.Instagram_link}</td> <td>{customer.Email}</td>
-                {/* <td>{customer.Lead_source}</td> */}
-                <td>{customer.Notes}</td>{' '}
+                <td>
+                  <a href={`/records/${customer.id}`} className='link-cell'>
+                    {customer.Name}
+                  </a>
+                </td>
+                <td>
+                  <a href={`/records/${customer.id}`} className='link-cell'>
+                    {customer.Magazine}
+                  </a>
+                </td>
+                <td>
+                  <a href={`/records/${customer.id}`} className='link-cell'>
+                    {customer.Amount}
+                  </a>
+                </td>
+                <td>
+                  <a href={`/records/${customer.id}`} className='link-cell'>
+                    {customer.Instagram_link}
+                  </a>
+                </td>
+                <td>
+                  <a href={`/records/${customer.id}`} className='link-cell'>
+                    {customer.Email}
+                  </a>
+                </td>
+                <td>
+                  <a href={`/records/${customer.id}`} className='link-cell'>
+                    {customer.Notes}
+                  </a>
+                </td>
                 <td>
                   <button
                     className='notes-btn'
@@ -182,7 +283,8 @@ const CustomerTable = () => {
       {openNotesModal && (
         <NotesModal
           setOpenNotesModal={setOpenNotesModal}
-          notes={selectedNotes}
+          initialNotes={selectedNotes} // Pass the initial notes to the modal
+          onSave={handleSaveNotes} // Pass the save function
         />
       )}
 
