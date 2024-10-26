@@ -18,7 +18,7 @@ export const fetchRecords = async (page = 1, limit = 10, search = '') => {
 
 export const fetchRecordById = async (id) => {
   try {
-    const response = await fetch(`http://localhost:5000/records/${id}`);
+    const response = await fetch(`${API_URL}/records/${id}`);
 
     // Check if response is not OK (status code outside of 2xx range)
     if (!response.ok) {
@@ -47,13 +47,37 @@ export const createCustomer = async (customerData) => {
   }
 };
 
+// // Update customer
+// export const updateCustomer = async (id, updatedData) => {
+//   try {
+//     const response = await axios.patch(`${API_URL}/records/${id}`, updatedData);
+//     return response.data;
+//   } catch (error) {
+//     console.error('Error updating customer:', error);
+//     throw error;
+//   }
+// };
+
 // Update customer
 export const updateCustomer = async (id, updatedData) => {
   try {
-    const response = await axios.put(`${API_URL}/records/${id}`, updatedData);
+    console.log('Attempting to update customer with ID:', id);
+    console.log('Payload data:', updatedData);
+
+    const response = await axios.patch(
+      `${API_URL}/records/${id}`,
+      updatedData,
+      { headers: { 'Content-Type': 'application/json' } }
+    );
+
+    console.log('Update successful:', response.data);
     return response.data;
   } catch (error) {
-    console.error('Error updating customer:', error);
+    if (error.response) {
+      console.error('Error updating customer:', error.response.data); // Server response error
+    } else {
+      console.error('Error updating customer:', error.message); // Network or other error
+    }
     throw error;
   }
 };
@@ -64,6 +88,19 @@ export const deleteCustomer = async (id) => {
     await axios.delete(`${API_URL}/records/${id}`);
   } catch (error) {
     console.error('Error deleting customer:', error);
+    throw error;
+  }
+};
+// Update Notes for a specific record by ID
+export const updateRecordNotes = async (id, note) => {
+  try {
+    const response = await axios.patch(`${API_URL}/records/${id}/notes`, {
+      note: note,
+    });
+    console.log(id);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating notes:', error);
     throw error;
   }
 };

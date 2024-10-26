@@ -11,6 +11,8 @@ import {
   deleteCustomer,
 } from '../api/fetchapi.js'; // Adjust the path as necessary
 import './customerTable.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSortUp, faSortDown } from '@fortawesome/free-solid-svg-icons';
 
 const CustomerTable = () => {
   const [customers, setCustomers] = useState([]);
@@ -19,11 +21,36 @@ const CustomerTable = () => {
   const [openUpdateDetailsModal, setOpenUpdateDetailsModal] = useState(false);
   const [openNotesModal, setOpenNotesModal] = useState(false);
   const [currentCustomer, setCurrentCustomer] = useState(null);
+  const [currentCustomerId, setCurrentCustomerId] = useState(null);
   const [openFilterModal, setOpenFilterModal] = useState(false);
   const [selectedNotes, setSelectedNotes] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState('');
+  const [sortOrder, setSortOrder] = useState('asc'); // State for sorting order
+  const [notes, setNotes] = useState(''); // Ensure setNotes is initialized here
+  const [records, setRecords] = useState([]);
+
+  // Price range states
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  // Function to fetch records from the server
+  const loadRecords = async () => {
+    try {
+      const data = await fetchRecords(); // Adjust this according to your API
+      setRecords(data); // Update records state
+    } catch (error) {
+      console.error('Error fetching records:', error);
+    }
+  };
+  // Load records on component mount
+  useEffect(() => {
+    loadRecords();
+  }, []);
+
+  const handleNotesUpdated = () => {
+    loadRecords(); // Refresh records after note update
+  };
 
   // Fetch customers from the backend API
   const fetchCustomers = async () => {
@@ -38,6 +65,23 @@ const CustomerTable = () => {
       setLoading(false);
     }
   };
+
+  // Function to fetch the record notes
+  const loadNotes = async () => {
+    try {
+      console.log('note updated');
+      fetchCustomers();
+    } catch (error) {
+      console.error('Error fetching record:', error);
+    }
+  };
+
+  // Fetch notes when component mounts or when `currentCustomerId` changes
+  useEffect(() => {
+    if (currentCustomerId) {
+      loadNotes();
+    }
+  }, [currentCustomerId]);
 
   useEffect(() => {
     fetchCustomers();
@@ -73,6 +117,7 @@ const CustomerTable = () => {
   };
   const handleEye = (id) => {
     const customer = customers.find((customer) => customer.id === id);
+    setCurrentCustomerId(id);
     setSelectedNotes(customer.Notes); // Ensure you set the selected notes from the customer object
     setCurrentCustomer(customer); // Keep track of the current customer for saving later
     setOpenNotesModal(true);
@@ -80,22 +125,24 @@ const CustomerTable = () => {
 
   // Add the onSave function to handle saving notes
   const handleSaveNotes = async (updatedNotes) => {
-    try {
-      // Call your API to save the updated notes
-      const updatedCustomer = await updateCustomer(currentCustomer.id, {
-        Notes: updatedNotes,
-      });
-      console.log(updateCustomer);
-      // Update local state
-      setCustomers((prevCustomers) =>
-        prevCustomers.map((customer) =>
-          customer.id === updatedCustomer.id ? updatedCustomer : customer
-        )
-      );
-    } catch (err) {
-      console.error('Error updating notes:', err);
-      // Handle error appropriately, e.g., set an error state
-    }
+    console.log('abc');
+    // try {
+    //   // Call your API to save the updated notes
+    //   const updatedCustomer = await updateCustomer(currentCustomer.id, {
+    //     Notes: updatedNotes,
+    //   });
+    //   console.log(updateCustomer);
+    //   // Update local state
+    //   setCustomers((prevCustomers) =>
+    //     prevCustomers.map((customer) =>
+    //       customer.id === updatedCustomer.id ? updatedCustomer : customer
+    //     )
+    //   );
+    // } catch (err) {
+    //   console.error('Error updating notes:', err);
+    //   // Handle error appropriately, e.g., set an error state
+    // }
+    // fetchCustomers();
   };
 
   const confirmUpdateDetails = async (updatedData) => {
@@ -113,6 +160,17 @@ const CustomerTable = () => {
     } catch (err) {
       setError('Error updating customer');
     }
+  };
+
+  // Function to sort customers by amount
+  const sortCustomersByAmount = () => {
+    const sortedCustomers = [...customers].sort((a, b) => {
+      const amountA = parseFloat(a.Amount); // Ensure Amount is a number
+      const amountB = parseFloat(b.Amount);
+      return sortOrder === 'asc' ? amountA - amountB : amountB - amountA;
+    });
+    setCustomers(sortedCustomers);
+    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc'); // Toggle sort order
   };
 
   return (
@@ -145,74 +203,23 @@ const CustomerTable = () => {
       ) : error ? (
         <p>{error}</p>
       ) : (
-        // <table className='customer-table'>
-        //   <thead>
-        //     <tr>
-        //       <th>Name</th>
-        //       <th>Magazine</th>
-        //       <th>Amount</th>
-        //       <th>Insta Link</th>
-        //       <th>Email</th>
-        //       {/* <th>Lead Source</th> */}
-        //       <th>Notes</th>
-        //       <th>Edit</th>
-        //       <th>Delete</th>
-        //     </tr>
-        //   </thead>
-        //   <tbody>
-        //     {customers.map((customer) => (
-        //       <tr key={customer.id}>
-        //         <td>
-        //           <a
-        //             href={`/records/${customer.id}`}
-        //             style={{ color: 'inherit', textDecoration: 'none' }}
-        //           >
-        //             {customer.Name}
-        //           </a>
-        //         </td>
-        //         <td>{customer.Magazine}</td>
-        //         <td>{customer.Amount}</td>
-        //         {/* <td>{customer['Instagram Link'] || 'N/A'}</td>{' '} */}
-        //         <td>{customer.Instagram_link}</td> <td>{customer.Email}</td>
-        //         {/* <td>{customer.Lead_source}</td> */}
-        //         <td>{customer.Notes}</td>{' '}
-        //         <td>
-        //           <button
-        //             className='notes-btn'
-        //             onClick={() => handleEye(customer.id)}
-        //           >
-        //             <i className='fa-solid fa-eye'></i>
-        //           </button>
-        //         </td>
-        //         <td>
-        //           <button
-        //             className='edit-btn'
-        //             onClick={() => handleEdit(customer.id)}
-        //           >
-        //             <i className='fa-solid fa-pencil'></i>
-        //           </button>
-        //         </td>
-        //         <td>
-        //           <button
-        //             className='delete-btn'
-        //             onClick={() => handleDelete(customer.id)}
-        //           >
-        //             <i className='fa-solid fa-trash'></i>
-        //           </button>
-        //         </td>
-        //       </tr>
-        //     ))}
-        //   </tbody>
-        // </table>
         <table className='customer-table'>
           <thead>
             <tr>
               <th>Name</th>
               <th>Magazine</th>
-              <th>Amount</th>
+              <th style={{ cursor: 'pointer' }} onClick={sortCustomersByAmount}>
+                Amount
+                {sortOrder === 'asc' ? (
+                  <FontAwesomeIcon icon={faSortUp} className='sort-icon' />
+                ) : (
+                  <FontAwesomeIcon icon={faSortDown} className='sort-icon' />
+                )}
+              </th>
               <th>Insta Link</th>
               <th>Email</th>
               <th>Notes</th>
+              <th>Edit Note</th>
               <th>Edit</th>
               <th>Delete</th>
             </tr>
@@ -285,6 +292,9 @@ const CustomerTable = () => {
           setOpenNotesModal={setOpenNotesModal}
           initialNotes={selectedNotes} // Pass the initial notes to the modal
           onSave={handleSaveNotes} // Pass the save function
+          onNotesUpdated={handleNotesUpdated}
+          // onNotesUpdated={(updatedNotes) => setNotes(updatedNotes)}
+          currentCustomerId={currentCustomerId}
         />
       )}
 

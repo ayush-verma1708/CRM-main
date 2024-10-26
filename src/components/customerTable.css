@@ -7,6 +7,34 @@
   overflow-y: auto;
 }
 /* CustomerTable.css */
+/* customerTable.css */
+
+/* Header styles */
+.customer-table th {
+  padding: 10px; /* Add padding for spacing */
+  background-color: #f1f1f1; /* Light background color */
+  color: #333; /* Text color */
+  font-weight: bold; /* Make the text bold */
+  text-align: left; /* Align text to the left */
+  position: relative; /* Position for pseudo-elements */
+}
+
+/* Add hover effect */
+.customer-table th:hover {
+  background-color: #e0e0e0; /* Change background on hover */
+}
+
+/* Sort icon styles */
+.sort-icon {
+  margin-left: 5px; /* Space between text and icon */
+  font-size: 0.8em; /* Smaller icon size */
+  transition: transform 0.2s; /* Transition effect */
+}
+
+/* Rotate icon when sorted descending */
+.sorted-desc .sort-icon {
+  transform: rotate(180deg); /* Rotate for descending */
+}
 
 .customer-table {
   width: 100%;
