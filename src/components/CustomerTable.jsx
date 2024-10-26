@@ -53,12 +53,32 @@ const CustomerTable = () => {
   };
 
   // Fetch customers from the backend API
+  // const fetchCustomers = async () => {
+  //   setLoading(true);
+  //   setError(null);
+  //   try {
+  //     const data = await fetchRecords(1, 100, search); // Adjust pagination and limit as needed
+  //     setCustomers(data.records);
+  //   } catch (err) {
+  //     setError('Error fetching customers');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
   const fetchCustomers = async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await fetchRecords(1, 100, search); // Adjust pagination and limit as needed
-      setCustomers(data.records);
+      // Fetch all customers
+      const data = await fetchRecords(1, 100, search);
+      // Filter customers based on price range
+      const filteredCustomers = data.records.filter((customer) => {
+        const amount = parseFloat(customer.Amount);
+        const min = minPrice ? parseFloat(minPrice) : -Infinity; // Default to -Infinity if minPrice is empty
+        const max = maxPrice ? parseFloat(maxPrice) : Infinity; // Default to Infinity if maxPrice is empty
+        return amount >= min && amount <= max;
+      });
+      setCustomers(filteredCustomers);
     } catch (err) {
       setError('Error fetching customers');
     } finally {
@@ -83,9 +103,13 @@ const CustomerTable = () => {
     }
   }, [currentCustomerId]);
 
+  // useEffect(() => {
+  //   fetchCustomers();
+  // }, [search]);
+
   useEffect(() => {
     fetchCustomers();
-  }, [search]);
+  }, [search, minPrice, maxPrice]); // Add minPrice and maxPrice to the dependency array
 
   const handleFilter = () => {
     setOpenFilterModal(true);
@@ -163,14 +187,23 @@ const CustomerTable = () => {
   };
 
   // Function to sort customers by amount
+  // const sortCustomersByAmount = () => {
+  //   const sortedCustomers = [...customers].sort((a, b) => {
+  //     const amountA = parseFloat(a.Amount); // Ensure Amount is a number
+  //     const amountB = parseFloat(b.Amount);
+  //     return sortOrder === 'asc' ? amountA - amountB : amountB - amountA;
+  //   });
+  //   setCustomers(sortedCustomers);
+  //   setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc'); // Toggle sort order
+  // };
   const sortCustomersByAmount = () => {
     const sortedCustomers = [...customers].sort((a, b) => {
-      const amountA = parseFloat(a.Amount); // Ensure Amount is a number
+      const amountA = parseFloat(a.Amount);
       const amountB = parseFloat(b.Amount);
       return sortOrder === 'asc' ? amountA - amountB : amountB - amountA;
     });
     setCustomers(sortedCustomers);
-    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc'); // Toggle sort order
+    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
   };
 
   return (
@@ -196,6 +229,30 @@ const CustomerTable = () => {
             onClick={handleFilter}
           ></i>
         </div>
+      </div>
+      {/* Price Range Inputs */}
+      <div className='price-range-selector'>
+        <div className='price-input-group'>
+          <label htmlFor='minPrice'>Min Price</label>
+          <input
+            id='minPrice'
+            type='number'
+            placeholder='0'
+            value={minPrice}
+            onChange={(e) => setMinPrice(e.target.value)}
+          />
+        </div>
+        <div className='price-input-group'>
+          <label htmlFor='maxPrice'>Max Price</label>
+          <input
+            id='maxPrice'
+            type='number'
+            placeholder='1000'
+            value={maxPrice}
+            onChange={(e) => setMaxPrice(e.target.value)}
+          />
+        </div>
+        <button onClick={fetchCustomers}>Filter</button>
       </div>
 
       {loading ? (

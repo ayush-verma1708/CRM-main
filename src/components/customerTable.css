@@ -9,6 +9,54 @@
 /* CustomerTable.css */
 /* customerTable.css */
 
+.price-range-selector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Aligns items to the ends */
+  margin: 20px 0; /* Adds spacing above and below */
+  padding: 10px;
+  background-color: #f9f9f9; /* Light background for contrast */
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+.price-input-group {
+  display: flex;
+  flex-direction: column; /* Stack label above input */
+  margin-right: 15px; /* Space between input groups */
+}
+
+.price-input-group label {
+  margin-bottom: 5px; /* Space between label and input */
+  font-weight: bold; /* Emphasize the label */
+}
+
+.price-range-selector input {
+  padding: 8px; /* Adds padding for comfort */
+  border: 1px solid #ccc; /* Light border */
+  border-radius: 4px; /* Rounded corners for inputs */
+  transition: border-color 0.3s; /* Smooth transition for focus */
+}
+
+.price-range-selector input:focus {
+  border-color: #007bff; /* Change border color on focus */
+  outline: none; /* Remove default outline */
+}
+
+.price-range-selector button {
+  padding: 10px 15px; /* Comfortable padding */
+  background-color: #007bff; /* Primary color */
+  color: #fff; /* Text color */
+  border: none; /* Remove border */
+  border-radius: 4px; /* Rounded corners for button */
+  cursor: pointer; /* Pointer on hover */
+  transition: background-color 0.3s; /* Smooth transition for hover */
+}
+
+.price-range-selector button:hover {
+  background-color: #0056b3; /* Darker shade on hover */
+}
+
 /* Header styles */
 .customer-table th {
   padding: 10px; /* Add padding for spacing */
