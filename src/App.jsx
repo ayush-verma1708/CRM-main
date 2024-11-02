@@ -8,6 +8,7 @@ import Customer from './pages/Customer';
 import AccessRole from './pages/AccessRole';
 import SideNav from './components/SideNav';
 import CustomerDetails from './components/CustomerDetails';
+import AddData from './pages/AddData'; // Update the path as necessary
 
 // ProtectedRoute example for authenticated pages
 const ProtectedRoute = ({ children }) => {
@@ -37,6 +38,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path='/Add-data'
+          element={
+            <ProtectedRoute>
+              <AddData />
             </ProtectedRoute>
           }
         />
