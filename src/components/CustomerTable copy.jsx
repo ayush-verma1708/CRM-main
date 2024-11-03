@@ -7,11 +7,11 @@ import {
   fetchRecords,
   updateCustomer,
   deleteCustomer,
+  fetchUsers,
 } from '../api/fetchapi.js'; // Adjust the path as necessary
 import './customerTable.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSortUp, faSortDown } from '@fortawesome/free-solid-svg-icons';
-import { format } from 'date-fns';
 
 const CustomerTable = () => {
   const [customers, setCustomers] = useState([]);
@@ -31,20 +31,6 @@ const CustomerTable = () => {
   const [records, setRecords] = useState([]);
   const [fields, setFields] = useState([]); // For dynamic fields
 
-  const [tableFields, setTableFields] = useState({
-    Name: true,
-    Magazine: true,
-    Amount: true,
-    Country_Code: false,
-    Email: true,
-    Order_id: true,
-    Address: false,
-    Product: false,
-    Quantity: false,
-    Model_Insta_Link: true,
-    Note: true,
-  });
-
   // Price range states
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
@@ -57,17 +43,72 @@ const CustomerTable = () => {
       console.error('Error fetching records:', error);
     }
   };
+
+  // Function to fetch users from the API
+  const loadUsers = async () => {
+    try {
+      const userData = await fetchUsers();
+      return userData; // Assuming this returns the users
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      setError('Error fetching users');
+      return []; // Return an empty array on error
+    }
+  };
+
+  // Merge customers and users based on email
+  const mergeCustomersWithUsers = (customers, users) => {
+    const userMap = {};
+
+    // Fetch customers and users on component mount
+    useEffect(() => {
+      const fetchAllData = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+          const [customerData, userData] = await Promise.all([
+            fetchRecords(),
+            loadUsers(),
+          ]);
+
+          const mergedData = mergeCustomersWithUsers(customerData, userData);
+          setCustomers(mergedData);
+        } catch (err) {
+          setError('Error loading data');
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchAllData();
+    }, []);
+
+    // Create a map from users for quick lookup
+    users.forEach((user) => {
+      userMap[user.email] = user; // Adjust this based on your user object structure
+    });
+
+    // Merge customers with corresponding users
+    return customers.map((customer) => {
+      const user = userMap[customer.Email] || {}; // Find the user by email
+      return {
+        ...customer,
+        userFirstName: user.firstName || '', // Assuming user object has firstName
+        userLastName: user.lastName || '', // Assuming user object has lastName
+        // Add more user fields if necessary
+      };
+    });
+  };
+
   // Load records on component mount
   useEffect(() => {
     loadRecords();
-    window.localStorage.removeItem('currCustId');
   }, []);
 
   const handleNotesUpdated = () => {
     loadRecords(); // Refresh records after note update
   };
 
-  // Updated fetchCustomers function
   const fetchCustomers = async () => {
     setLoading(true);
     setError(null);
@@ -90,10 +131,7 @@ const CustomerTable = () => {
     const emailMap = {};
 
     data.forEach((customer) => {
-      // Create a unique key based on both Email Address and Email
-      // const emailKey = `${customer.Email}_${customer.Email}`;
-      // Create a unique key based on both Email Address and Email fields
-      const email1 = customer.Email || '';
+      const email1 = customer['Email Address'] || '';
       const email2 = customer.Email || '';
       const emailKey = email1 === email2 ? email1 : `${email1}_${email2}`;
 
@@ -108,6 +146,28 @@ const CustomerTable = () => {
         existingCustomer.Magazines = existingCustomer.Magazines
           ? `${existingCustomer.Magazines}, ${customer.Magazine}`
           : customer.Magazine;
+
+        // Example merge logic: customize this as per your requirements
+        existingCustomer['Email Address'] = existingCustomer['Email Address']
+          ? `${existingCustomer['Email Address']}, ${customer['Email Address']}`
+          : customer['Email Address'];
+
+        // Merge Instagram links
+        existingCustomer['Model Insta Link 1'] = existingCustomer[
+          'Model Insta Link 1'
+        ]
+          ? `${existingCustomer['Model Insta Link 1']}, ${customer['Model Insta Link 1']}`
+          : customer['Model Insta Link 1'];
+
+        existingCustomer['Photographer Insta Link 1'] = existingCustomer[
+          'Photographer Insta Link 1'
+        ]
+          ? `${existingCustomer['Photographer Insta Link 1']}, ${customer['Photographer Insta Link 1']}`
+          : customer['Photographer Insta Link 1'];
+
+        existingCustomer['Mua Insta Link'] = existingCustomer['Mua Insta Link']
+          ? `${existingCustomer['Mua Insta Link']}, ${customer['Mua Insta Link']}`
+          : customer['Mua Insta Link'];
 
         existingCustomer.Magazine += `, ${customer.Magazine}`;
         existingCustomer.Amount += existingCustomer.Amount + customer.Amount; // Example for Amount
@@ -134,6 +194,12 @@ const CustomerTable = () => {
   useEffect(() => {
     fetchCustomers();
   }, [search, minPrice, maxPrice]);
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      fetchCustomers();
+    }
+  };
 
   // Function to fetch the record notes
   const loadNotes = async () => {
@@ -165,12 +231,6 @@ const CustomerTable = () => {
     setCustomerToDelete(id);
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      fetchCustomers();
-    }
-  };
-
   const confirmDeleteCustomer = async () => {
     if (customerToDelete !== null) {
       try {
@@ -186,18 +246,11 @@ const CustomerTable = () => {
   };
 
   const handleEdit = (id) => {
-    window.localStorage.setItem('currCustId', id);
-
     const customer = customers.find((customer) => customer._id === id);
-    setCurrentCustomerId(id);
-    setSelectedNotes(customer.Notes); // Ensure you set the selected notes from the customer object
     setCurrentCustomer(customer);
-
     setOpenUpdateDetailsModal(true);
   };
-
   const handleEye = (id) => {
-    window.localStorage.setItem('currCustId', id);
     const customer = customers.find((customer) => customer._id === id);
     setCurrentCustomerId(id);
     setSelectedNotes(customer.Notes); // Ensure you set the selected notes from the customer object
@@ -208,7 +261,7 @@ const CustomerTable = () => {
   const confirmUpdateDetails = async (updatedData) => {
     try {
       const updatedCustomer = await updateCustomer(
-        currentCustomer._id,
+        currentcustomer._id,
         updatedData
       ); // Call the update API
       setCustomers((prevCustomers) =>
@@ -238,30 +291,6 @@ const CustomerTable = () => {
         <div className='leftHeader'>
           <h3>All Customers</h3>
         </div>
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-          }}
-        >
-          {Object.entries(tableFields).map(([key, value]) => {
-            return (
-              <label key={key}>
-                {key}
-                <input
-                  type='checkbox'
-                  checked={value}
-                  onChange={(e) => {
-                    setTableFields((pv) => ({
-                      ...pv,
-                      [key]: !value,
-                    }));
-                  }}
-                />
-              </label>
-            );
-          })}
-        </div>
         <div className='rightHeader'>
           <div className='search-customer'>
             <input
@@ -282,7 +311,6 @@ const CustomerTable = () => {
         </div>
       </div>
       {/* Price Range Inputs */}
-
       <div className='price-range-selector'>
         <div className='price-input-group'>
           <label htmlFor='minPrice'>Min Price</label>
@@ -316,211 +344,117 @@ const CustomerTable = () => {
           <table className='customer-table'>
             <thead>
               <tr>
-                {tableFields.Name && <th>Name</th>}
-                {tableFields.Magazine && <th>Magazine</th>}
-                {tableFields.Amount && (
-                  <th
-                    style={{ cursor: 'pointer' }}
-                    onClick={sortCustomersByAmount}
-                  >
-                    Amount
-                    {sortOrder === 'asc' ? (
-                      <FontAwesomeIcon icon={faSortUp} className='sort-icon' />
-                    ) : (
-                      <FontAwesomeIcon
-                        icon={faSortDown}
-                        className='sort-icon'
-                      />
-                    )}
-                  </th>
-                )}
-                {tableFields.Country_Code && <th>Country Code</th>}
-                {tableFields.Email && <th>Email</th>}
-                {tableFields.Address && <th>Address</th>}
-                {tableFields.Order_id && <th>Order Id</th>}
-                {tableFields.Model_Insta_Link ? <th>Insta Link</th> : null}
-                {tableFields.Quantity && <th>Quantity</th>}
-                {tableFields.Product && <th>Products</th>}
-                {tableFields.Note && <th>Notes</th>}
+                <th>Name</th>
+                {/* <th>Magazine</th>
+                <th
+                  style={{ cursor: 'pointer' }}
+                  onClick={sortCustomersByAmount}
+                >
+                  Amount
+                  {sortOrder === 'asc' ? (
+                    <FontAwesomeIcon icon={faSortUp} className='sort-icon' />
+                  ) : (
+                    <FontAwesomeIcon icon={faSortDown} className='sort-icon' />
+                  )}
+                </th>
+                <th>Country Code</th>*/}
+                <th>Email</th>
+                {/* <th>Order Id</th>  */}
+                <th>Insta Link</th>
+                {/* <th>Quantity</th>
+                <th>Products</th>
+                <th>Notes</th>
                 <th>Edit Note</th>
                 <th>Edit</th>
-                <th>Delete</th>
+                <th>Delete</th> */}
               </tr>
             </thead>
             <tbody>
-              {customers.map((customer) => {
-                return (
-                  <tr key={customer._id}>
-                    {tableFields.Name && (
-                      <td>
-                        <a
-                          href={`/records/${customer._id}`}
-                          className='link-cell'
-                        >
-                          {customer.First_Name} {customer.Last_Name}
-                        </a>
-                      </td>
-                    )}
-                    {tableFields.Magazine && (
-                      <td>
-                        <a
-                          href={`/records/${customer._id}`}
-                          className='link-cell'
-                        >
-                          {customer.Magazine}
-                        </a>
-                      </td>
-                    )}
-                    {tableFields.Amount && (
-                      <td>
-                        <a
-                          href={`/records/${customer._id}`}
-                          className='link-cell'
-                        >
-                          {customer.Amount}
-                        </a>
-                      </td>
-                    )}
-                    {tableFields.Country_Code && (
-                      <td>
-                        <a
-                          href={`/records/${customer._id}`}
-                          className='link-cell'
-                        >
-                          {customer.Country_Code}
-                        </a>
-                      </td>
-                    )}
-                    {tableFields.Email && (
-                      <td>
-                        <a
-                          href={`/records/${customer._id}`}
-                          className='link-cell'
-                        >
-                          {customer.Email}
-                        </a>
-                      </td>
-                    )}
-                    {tableFields.Address && (
-                      <td>
-                        <a
-                          href={`/records/${customer._id}`}
-                          className='link-cell'
-                        >
-                          {customer.Address}
-                        </a>
-                      </td>
-                    )}
-                    {tableFields.Order_id && (
-                      <td>
-                        <a
-                          href={`/records/${customer._id}`}
-                          className='link-cell'
-                        >
-                          {customer.Order_id}
-                        </a>
-                      </td>
-                    )}
-                    {tableFields.Model_Insta_Link ? (
-                      <td>
-                        <a
-                          href={`/records/${customer._id}`}
-                          className='link-cell'
-                        >
-                          {customer.user_info?.Model_Insta_Link
-                            ? customer.user_info.Model_Insta_Link
-                            : 'N/A'}
-                        </a>
-                      </td>
-                    ) : (
-                      <td>N/A</td>
-                    )}
-
-                    {tableFields.Quantity && (
-                      <td>
-                        <a
-                          href={`/records/${customer._id}`}
-                          className='link-cell'
-                        >
-                          {customer.Quantity}
-                        </a>
-                      </td>
-                    )}
-                    {tableFields.Product && (
-                      <td>
-                        <a
-                          href={`/records/${customer._id}`}
-                          className='link-cell'
-                        >
-                          {customer.Product}
-                        </a>
-                      </td>
-                    )}
-                    {/* <td>
-                  {customer.Notes && customer.NoteDate ? (
-                    <a
-                      href={`/records/${customer._id}`}
-                      className='link-cell'
-                    >
-                      {customer.Notes} -{' '}
-                      {format(new Date(customer.NoteDate), 'MM/dd/yyyy')}
+              {customers.map((customer) => (
+                <tr key={customer._id}>
+                  <td>
+                    <a href={`/records/${customer._id}`} className='link-cell'>
+                      {customer.First_Name} {customer.Last_Name}
                     </a>
-                  ) : (
-                    <span>No data available</span> // Placeholder for empty data
-                  )}
-                </td> */}
-                    {tableFields.Note && (
-                      <td>
-                        <a
-                          href={`/records/${customer._id}`}
-                          className='link-cell'
-                        >
-                          {(customer.Notes != undefined ||
-                            customer.Notes != null ||
-                            customer.Notes == '') && (
-                            <span>
-                              {customer?.Notes} -{' '}
-                              {new Date(customer?.NoteDate).toLocaleDateString(
-                                'en-US',
-                                {
-                                  year: 'numeric',
-                                  month: 'long',
-                                  day: 'numeric',
-                                }
-                              )}
-                            </span>
-                          )}
-                        </a>
-                      </td>
-                    )}
+                  </td>
+                  {/* <td>
+                    <a href={`/records/${customer._id}`} className='link-cell'>
+                      {customer.Magazine}
+                    </a>
+                  </td>
+                  <td>
+                    <a href={`/records/${customer._id}`} className='link-cell'>
+                      {customer.Amount}
+                    </a>
+                  </td>
+                  <td>
+                    <a href={`/records/${customer._id}`} className='link-cell'>
+                      {customer.Country_Code}
+                    </a>
+                  </td>*/}
+                  <td>
+                    <a href={`/records/${customer._id}`} className='link-cell'>
+                      {customer.Email}
+                    </a>
+                  </td>
+                  {/* <td>
+                    <a href={`/records/${customer._id}`} className='link-cell'>
+                      {customer.Order_id}
+                    </a>
+                  </td>  */}
+                  <td>
+                    <a href={`/records/${customer._id}`} className='link-cell'>
+                      {customer.Model_Insta_Link}
+                    </a>
+                  </td>
+                  {/* <td>
+                    <a href={`/records/${customer._id}`} className='link-cell'>
+                      {customer.Quantity}
+                    </a>
+                  </td>
+                  <td>
+                    <a href={`/records/${customer._id}`} className='link-cell'>
+                      {customer.Product}
+                    </a>
+                  </td>
 
-                    <td>
-                      <button
-                        className='notes-btn'
-                        onClick={() => handleEye(customer._id)}
-                      >
-                        <i className='fa-solid fa-eye'></i>
-                      </button>
-                    </td>
-                    <td>
-                      <button
-                        className='edit-btn'
-                        onClick={() => handleEdit(customer._id)}
-                      >
-                        <i className='fa-solid fa-pencil'></i>
-                      </button>
-                    </td>
-                    <td>
-                      <button
-                        className='delete-btn'
-                        onClick={() => handleDelete(customer._id)}
-                      >
-                        <i className='fa-solid fa-trash'></i>
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
+                  <td>
+                    <a href={`/records/${customer._id}`} className='link-cell'>
+                      {customer.Notes} -{' '}
+                      {new Date(customer.NoteDate).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      })}
+                    </a>
+                  </td>
+
+                  <td>
+                    <button
+                      className='notes-btn'
+                      onClick={() => handleEye(customer._id)}
+                    >
+                      <i className='fa-solid fa-eye'></i>
+                    </button>
+                  </td>
+                  <td>
+                    <button
+                      className='edit-btn'
+                      onClick={() => handleEdit(customer._id)}
+                    >
+                      <i className='fa-solid fa-pencil'></i>
+                    </button>
+                  </td>
+                  <td>
+                    <button
+                      className='delete-btn'
+                      onClick={() => handleDelete(customer._id)}
+                    >
+                      <i className='fa-solid fa-trash'></i>
+                    </button>
+                  </td> */}
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
@@ -549,7 +483,7 @@ const CustomerTable = () => {
 
       {openUpdateDetailsModal && (
         <UpdateCustomerDetailsModal
-          customer={currentCustomerId}
+          customer={currentCustomer}
           setOpenUpdateDetailsModal={setOpenUpdateDetailsModal}
           confirmUpdateDetails={confirmUpdateDetails}
         />

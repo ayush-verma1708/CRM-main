@@ -1,35 +1,59 @@
-.notesModal-bg{
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
+.notesModal-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
 
-.notesModal-container{
-    width: 40vw;
-    height: 20rem;
-    background-color: #EDECE8;
-    color: black;
-    font-weight: 600;
-    border-radius: 1.25rem;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    padding: 2rem;
-    overflow-y: auto;
+.notesModal-container {
+  width: 40vw;
+  height: 20rem;
+  background-color: #edece8;
+  color: black;
+  font-weight: 600;
+  border-radius: 1.25rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+  overflow-y: auto;
 }
 
 .notesModal-container::-webkit-scrollbar {
-    display: none; 
+  display: none;
 }
 
-.notes-data{
-    margin-top: 1rem;
-    text-align: left;
+.notes-data {
+  margin-top: 1rem;
+  text-align: left;
+}
+.date-input-container {
+  margin: 1em 0; /* Space around the date input */
+}
+
+.date-input-container label {
+  display: block; /* Stack the label above the input */
+  font-weight: bold; /* Make the label text bold */
+  margin-bottom: 0.5em; /* Space below the label */
+}
+
+.date-input-container input[type='date'] {
+  padding: 0.5em; /* Padding inside the input */
+  border: 1px solid #ccc; /* Light gray border */
+  border-radius: 4px; /* Rounded corners */
+  font-size: 1em; /* Increase font size for readability */
+  width: 100%; /* Full width for better layout */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Add subtle shadow */
+  transition: border-color 0.3s, box-shadow 0.3s; /* Smooth transition */
+}
+
+.date-input-container input[type='date']:focus {
+  border-color: #007bff; /* Change border color on focus */
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.5); /* Shadow effect on focus */
 }

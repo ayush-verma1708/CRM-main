@@ -4,7 +4,7 @@ import InputField from '../components/InputField';
 import { updateCustomer, fetchRecordById } from '../api/fetchapi'; // Import your update and fetch API functions
 
 const UpdateCustomerDetailsModal = ({
-  customerId,
+  CurrentCustomerId,
   setOpenUpdateDetailsModal,
   confirmUpdateDetails,
 }) => {
@@ -28,48 +28,58 @@ const UpdateCustomerDetailsModal = ({
     paymentMethod: '',
     magazine: '',
     status: '',
-    modelPhotographerMUA: '',
-    dateOfBirth: '',
-    modelStageName: '',
-    modelInstaLink: '',
-    photographerInstaLink: '',
-    muaStageName: '',
-    muaInstaLink: '',
+    modelType: '', // Updated field name
+    stageName: '', // Updated field name
+    modelInstaLink: '', // Updated field name
+    dateOfBirth: '', // Updated field name
+    photographerInstaLink: '', // Updated field name
+    muaStageName: '', // Updated field name
+    muaInstaLink: '', // Updated field name
+    phoneNumber2: '', // New field
+    emailAddress2: '', // New field
+    country: '', // New field
+    notes: '', // New field
+    noteDate: '', // New field
   });
 
   // Fetch customer data when the modal opens
   useEffect(() => {
     const fetchCustomerData = async () => {
-      if (customerId) {
+      if (CurrentCustomerId) {
         try {
-          const customer = await fetchRecordById(customerId);
+          const customer = await fetchRecordById(CurrentCustomerId);
           setFormData({
-            firstName: customer['First Name'] || '',
-            lastName: customer['Last Name'] || '',
+            firstName: customer.First_Name || '',
+            lastName: customer.Last_Name || '',
             phone: customer.Phone || '',
             email: customer.Email || '',
-            countryCode: customer['Country Code'] || '',
+            countryCode: customer.Country_Code || '',
             address: customer.Address || '',
             state: customer.State || '',
-            zipCode: customer['ZIP Code'] || '',
-            orderId: customer['Order ID'] || '',
+            zipCode: customer.Zip_Code || '',
+            orderId: customer.Order_id || '',
             product: customer.Product || '',
             quantity: customer.Quantity || '',
             discount: customer.Discount || '',
             shipping: customer.Shipping || '',
             amount: customer.Amount || '',
             currency: customer.Currency || '',
-            paymentType: customer['Payment Type'] || '',
-            paymentMethod: customer['Payment Method'] || '',
+            paymentType: customer.Payment_Type || '',
+            paymentMethod: customer.Payment_Method || '',
             magazine: customer.Magazine || '',
             status: customer.Status || '',
-            modelPhotographerMUA: customer["I'm Model/Photographer/MUA"] || '',
-            dateOfBirth: customer['Date of Birth'] || '',
-            modelStageName: customer['MODEL: Stage Name'] || '',
-            modelInstaLink: customer['Model Insta Link 1'] || '',
-            photographerInstaLink: customer['Photographer Insta Link 1'] || '',
-            muaStageName: customer["MUA's : Stage Name"] || '',
-            muaInstaLink: customer['Mua Insta Link-'] || '',
+            modelType: customer.Model_Type || '', // Updated field name
+            stageName: customer.Stage_Name || '', // Updated field name
+            modelInstaLink: customer.Model_Insta_Link || '', // Updated field name
+            dateOfBirth: customer.Date_Of_Birth || '', // Updated field name
+            photographerInstaLink: customer.Photographer_Insta_Link || '', // Updated field name
+            muaStageName: customer.Mua_Stage_Name || '', // Updated field name
+            muaInstaLink: customer.Mua_Insta_link || '', // Updated field name
+            phoneNumber2: customer.Phone_Number_2 || '', // New field
+            emailAddress2: customer.Email_Address_2 || '', // New field
+            country: customer.Country || '', // New field
+            notes: customer.Notes || '', // New field
+            noteDate: customer.NoteDate || '', // New field
           });
         } catch (error) {
           console.error('Error fetching customer data:', error);
@@ -79,7 +89,7 @@ const UpdateCustomerDetailsModal = ({
     };
 
     fetchCustomerData();
-  }, [customerId]);
+  }, [CurrentCustomerId]);
 
   const handleChange = (e) => {
     setFormData({
@@ -93,40 +103,50 @@ const UpdateCustomerDetailsModal = ({
 
     try {
       const updatedData = {
-        'First Name': formData.firstName,
-        'Last Name': formData.lastName,
+        First_Name: formData.firstName,
+        Last_Name: formData.lastName,
         Phone: formData.phone,
         Email: formData.email,
-        'Country Code': formData.countryCode,
+        Country_Code: formData.countryCode,
         Address: formData.address,
         State: formData.state,
-        'ZIP Code': formData.zipCode,
-        'Order ID': formData.orderId,
+        Zip_Code: formData.zipCode,
+        Order_id: formData.orderId,
         Product: formData.product,
         Quantity: formData.quantity,
         Discount: formData.discount,
         Shipping: formData.shipping,
         Amount: formData.amount,
         Currency: formData.currency,
-        'Payment Type': formData.paymentType,
-        'Payment Method': formData.paymentMethod,
+        Payment_Type: formData.paymentType,
+        Payment_Method: formData.paymentMethod,
         Magazine: formData.magazine,
         Status: formData.status,
-        "I'm Model/Photographer/MUA": formData.modelPhotographerMUA,
-        'Date of Birth': formData.dateOfBirth,
-        'MODEL: Stage Name': formData.modelStageName,
-        'Model Insta Link 1': formData.modelInstaLink,
-        'Photographer Insta Link 1': formData.photographerInstaLink,
-        "MUA's : Stage Name": formData.muaStageName,
-        'Mua Insta Link-': formData.muaInstaLink,
+        Model_Type: formData.modelType, // Updated field name
+        Stage_Name: formData.stageName, // Updated field name
+        Model_Insta_Link: formData.modelInstaLink, // Updated field name
+        Date_Of_Birth: formData.dateOfBirth, // Updated field name
+        Photographer_Insta_Link: formData.photographerInstaLink, // Updated field name
+        Mua_Stage_Name: formData.muaStageName, // Updated field name
+        Mua_Insta_link: formData.muaInstaLink, // Updated field name
+        Phone_Number_2: formData.phoneNumber2, // New field
+        Email_Address_2: formData.emailAddress2, // New field
+        Country: formData.country, // New field
+        Notes: formData.notes, // New field
+        NoteDate: formData.noteDate, // New field
       };
 
-      const updatedCustomer = await updateCustomer(customerId, updatedData); // Pass the correct ID
+      const updatedCustomer = await updateCustomer(
+        // CurrentCustomerId,
+        updatedData
+      ); // Pass the correct ID
       confirmUpdateDetails(updatedCustomer); // Call the confirmUpdateDetails with updated customer data
       setOpenUpdateDetailsModal(false); // Close modal after updating
     } catch (error) {
       console.error('Error updating customer:', error);
       // Handle error appropriately, e.g., show a notification
+    } finally {
+      window.location.reload();
     }
   };
 
@@ -292,60 +312,91 @@ const UpdateCustomerDetailsModal = ({
               onChange={handleChange}
             />
             <InputField
-              label="I'm Model/Photographer/MUA"
+              label='Model Type'
               type='text'
-              name='modelPhotographerMUA'
-              value={formData.modelPhotographerMUA}
+              name='modelType'
+              value={formData.modelType} // Updated field name
               onChange={handleChange}
             />
             <InputField
-              label='Date of Birth'
-              type='date'
-              name='dateOfBirth'
-              value={formData.dateOfBirth}
-              onChange={handleChange}
-            />
-            <InputField
-              label='MODEL: Stage Name'
+              label='Stage Name'
               type='text'
-              name='modelStageName'
-              value={formData.modelStageName}
+              name='stageName'
+              value={formData.stageName} // Updated field name
               onChange={handleChange}
             />
             <InputField
               label='Model Insta Link'
               type='text'
               name='modelInstaLink'
-              value={formData.modelInstaLink}
+              value={formData.modelInstaLink} // Updated field name
+              onChange={handleChange}
+            />
+            <InputField
+              label='Date of Birth'
+              type='date'
+              name='dateOfBirth'
+              value={formData.dateOfBirth} // Updated field name
               onChange={handleChange}
             />
             <InputField
               label='Photographer Insta Link'
               type='text'
               name='photographerInstaLink'
-              value={formData.photographerInstaLink}
+              value={formData.photographerInstaLink} // Updated field name
               onChange={handleChange}
             />
             <InputField
-              label="MUA's Stage Name"
+              label='MUA Stage Name'
               type='text'
               name='muaStageName'
-              value={formData.muaStageName}
+              value={formData.muaStageName} // Updated field name
               onChange={handleChange}
             />
             <InputField
               label='MUA Insta Link'
               type='text'
               name='muaInstaLink'
-              value={formData.muaInstaLink}
+              value={formData.muaInstaLink} // Updated field name
+              onChange={handleChange}
+            />
+            <InputField
+              label='Phone Number 2'
+              type='tel'
+              name='phoneNumber2' // New field
+              value={formData.phoneNumber2}
+              onChange={handleChange}
+            />
+            <InputField
+              label='Email Address 2'
+              type='email'
+              name='emailAddress2' // New field
+              value={formData.emailAddress2}
+              onChange={handleChange}
+            />
+            <InputField
+              label='Country'
+              type='text'
+              name='country' // New field
+              value={formData.country}
+              onChange={handleChange}
+            />
+            <InputField
+              label='Notes'
+              type='text'
+              name='notes' // New field
+              value={formData.notes}
+              onChange={handleChange}
+            />
+            <InputField
+              label='Note Date'
+              type='date'
+              name='noteDate' // New field
+              value={formData.noteDate}
               onChange={handleChange}
             />
           </div>
-          <button
-            className='update-btn'
-            type='submit'
-            style={{ backgroundColor: '#5932EA' }}
-          >
+          <button type='submit' className='updateBtn'>
             Update
           </button>
         </form>

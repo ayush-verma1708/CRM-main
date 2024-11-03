@@ -3,18 +3,57 @@ import axios from 'axios';
 
 const API_URL = 'http://localhost:5000'; // Replace with your backend API URL
 
-export const fetchRecords = async (page = 1, limit = 10, search = '') => {
+// Generalized function to fetch data from a given endpoint
+const fetchData = async (endpoint, page = 1, limit = 10, search = '') => {
   try {
-    const response = await axios.get(`${API_URL}/records`, {
+    const response = await axios.get(`${API_URL}${endpoint}`, {
       params: { page, limit, search },
     });
     return response.data;
   } catch (error) {
-    console.error('Error fetching records:', error);
+    console.error(`Error fetching data from ${endpoint}:`, error);
     throw error;
   }
 };
-// fetchapi.js
+
+// Fetch records from the API
+export const fetchRecords = async (page = 1, limit = 10, search = '') => {
+  return fetchData('/records', page, limit, search);
+};
+
+// Fetch users from the API
+export const fetchUsers = async (page = 1, limit = 10, search = '') => {
+  return fetchData('/api/users', page, limit, search);
+};
+
+// export const fetchRecords = async (page = 1, limit = 10, search = '') => {
+//   try {
+//     const response = await axios.get(`${API_URL}/records`, {
+//       params: { page, limit, search },
+//     });
+//     return response.data;
+//   } catch (error) {
+//     console.error('Error fetching records:', error);
+//     throw error;
+//   }
+// };
+// // fetchapi.js
+
+// export const fetchUsers = async (page = 1, limit = 10, search = '') => {
+//   try {
+//     const response = await axios.get(`http://localhost:5000/api/users`, {
+//       params: {
+//         page,
+//         limit,
+//         search,
+//       },
+//     });
+//     return response.data; // This will contain the user data
+//   } catch (error) {
+//     console.error('Error fetching users:', error);
+//     throw error; // Rethrow the error for further handling
+//   }
+// };
 
 export const fetchRecordById = async (id) => {
   try {
@@ -47,30 +86,28 @@ export const createCustomer = async (customerData) => {
   }
 };
 
-// // Update customer
-// export const updateCustomer = async (id, updatedData) => {
-//   try {
-//     const response = await axios.patch(`${API_URL}/records/${id}`, updatedData);
-//     return response.data;
-//   } catch (error) {
-//     console.error('Error updating customer:', error);
-//     throw error;
-//   }
-// };
-
 // Update customer
-export const updateCustomer = async (id, updatedData) => {
+export const updateCustomer = async (updatedData) => {
   try {
+    const id = window.localStorage.getItem('currCustId');
+
     console.log('Attempting to update customer with ID:', id);
     console.log('Payload data:', updatedData);
 
+    const queryParams = new URLSearchParams();
+
+    Object.entries(updatedData).map(([key, value]) => {
+      queryParams.append(key, value);
+    });
+
+    queryParams.append('id', id);
+
     const response = await axios.patch(
-      `${API_URL}/records/${id}`,
+      `${API_URL}/records/${id}?${queryParams}`,
       updatedData,
       { headers: { 'Content-Type': 'application/json' } }
     );
 
-    console.log('Update successful:', response.data);
     return response.data;
   } catch (error) {
     if (error.response) {
@@ -92,10 +129,11 @@ export const deleteCustomer = async (id) => {
   }
 };
 // Update Notes for a specific record by ID
-export const updateRecordNotes = async (id, note) => {
+export const updateRecordNotes = async (id, note, noteDate) => {
   try {
     const response = await axios.patch(`${API_URL}/records/${id}/notes`, {
       note: note,
+      noteDate: noteDate, // Include the noteDate in the request body
     });
     console.log(id);
     return response.data;
