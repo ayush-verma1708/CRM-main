@@ -101,18 +101,27 @@ const CustomerTable = () => {
         // If the key already exists, merge values
         const existingCustomer = emailMap[emailKey];
 
-        existingCustomer.Products = existingCustomer.Products
-          ? `${existingCustomer.Products}, ${customer.Products}`
-          : customer.Products;
+        // Concatenate each product on a new line or with a bullet point
+        existingCustomer.Product = existingCustomer.Product
+          ? `${existingCustomer.Product}\n- ${customer.Product}` // Bullet point style
+          : `- ${customer.Product}`; // Initialize with bullet for the first entry
+
         // Concatenate Magazines
-        existingCustomer.Magazines = existingCustomer.Magazines
-          ? `${existingCustomer.Magazines}, ${customer.Magazine}`
-          : customer.Magazine;
+        // existingCustomer.Magazines = existingCustomer.Magazines
+        //   ? `${existingCustomer.Magazines}, ${customer.Magazine}`
+        //   : customer.Magazine;
 
         existingCustomer.Magazine += `, ${customer.Magazine}`;
-        existingCustomer.Amount += existingCustomer.Amount + customer.Amount; // Example for Amount
-        existingCustomer.Quantity +=
-          existingCustomer.Quantity + customer.Quantity; // Example for Amount
+        // existingCustomer.Amount += existingCustomer.Amount + customer.Amount; // Example for Amount
+        existingCustomer.Amount = Math.round(
+          existingCustomer.Amount + customer.Amount
+        );
+
+        // existingCustomer.Quantity +=
+        //   existingCustomer.Quantity + customer.Quantity; // Example for Amount
+        // Ensure Quantity is added correctly as an integer
+        existingCustomer.Quantity += customer.Quantity;
+
         existingCustomer.Notes += ', ' + customer.Notes; // Example for Notes
         existingCustomer.NoteDate = new Date(
           Math.max(
@@ -453,6 +462,13 @@ const CustomerTable = () => {
                           className='link-cell'
                         >
                           {customer.Product}
+                          {/* <ul>
+                            {customer.Product.split(', ').map(
+                              (product, index) => (
+                                <li key={index}>{product.trim()}</li>
+                              )
+                            )}
+                          </ul> */}
                         </a>
                       </td>
                     )}
