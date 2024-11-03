@@ -6,36 +6,33 @@ import './CustomerDetails.css'; // Import the CSS file for styling
 const CustomerDetails = () => {
   const { id } = useParams(); // Get the ID from the URL parameters
   const [customer, setCustomer] = useState(null);
+  const [sameEmailRecords, setSameEmailRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [expandedFields, setExpandedFields] = useState({}); // Track which fields are expanded
 
   useEffect(() => {
     const fetchCustomerDetails = async () => {
-      // Check if the ID is valid (for example, a valid ObjectId or a number)
+      // Validate the ID format (e.g., ObjectId length)
       if (!id || id.length !== 24) {
         setError('Invalid customer ID');
         setLoading(false);
-        return; // Stop further execution if ID is invalid
+        return; // Stop execution if ID is invalid
       }
 
       try {
         const data = await fetchRecordById(id); // Call the API function
         console.log('Fetched data:', data); // Log the fetched data
 
-        if (!data) {
+        if (!data || !data.record) {
           setError('No customer found with this ID');
         } else {
-          setCustomer(data);
+          setCustomer(data.record);
+          setSameEmailRecords(data.sameEmailRecords);
         }
       } catch (err) {
         console.error('Fetch error:', err); // Log the error for debugging
-
-        // Handle error messages based on status code or other properties
-        if (err.message.includes('404')) {
-          setError('Customer not found');
-        } else {
-          setError('Error fetching customer details');
-        }
+        setError('Error fetching customer details');
       } finally {
         setLoading(false);
       }
@@ -44,36 +41,39 @@ const CustomerDetails = () => {
     fetchCustomerDetails();
   }, [id]); // Dependency array includes id to refetch when it changes
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>{error}</p>;
+  if (loading) return <p className='loading'>Loading...</p>;
+  if (error) return <p className='error'>{error}</p>;
 
   const fieldsToDisplay = {
-    'First Name': customer['First Name'],
-    'Last Name': customer['Last Name'],
+    'First Name': customer.First_Name,
+    'Last Name': customer.Last_Name,
     Magazine: customer.Magazine,
     Currency: customer.Currency,
     Amount: customer.Amount,
     Status: customer.Status,
-    'Payment Type': customer['Payment Type'],
-    'Payment Method': customer['Payment Method'],
+    'Payment Type': customer.Payment_Type,
+    'Payment Method': customer.Payment_Method,
     Email: customer.Email,
-    Phone: customer.Phone, // Added Phone
     Address: customer.Address,
-    State: customer.State, // Added State
-    'ZIP Code': customer['ZIP Code'],
-    'Order ID': customer['Order ID'],
+    'ZIP Code': customer.Zip_Code,
+    'Order ID': customer.Order_id,
     Product: customer.Product,
     Quantity: customer.Quantity,
     Discount: customer.Discount,
     Shipping: customer.Shipping,
-    'Model/Photographer/MUA': customer["I'm Model/Photographer/MUA"], // Added this field
-    'MODEL: Stage Name': customer['MODEL: Stage Name'], // Added this field
-    'Model Insta Link 1': customer['Model Insta Link 1'], // Added this field
-    'Photographer Insta Link 1': customer['Photographer Insta Link 1'], // Added this field
-    "MUA's : Stage Name": customer["MUA's : Stage Name"], // Added this field
-    'Mua Insta Link-': customer['Mua Insta Link-'], // Added this field
-    'Date of Birth': customer['Date of Birth'], // Added Date of Birth
-    Notes: customer.Notes, // Added Notes
+  };
+
+  // Filter out the main customer record from the sameEmailRecords
+  const filteredSameEmailRecords = sameEmailRecords.filter(
+    (record) => record._id !== customer._id
+  );
+
+  // Toggle the expansion of fields
+  const toggleFieldExpansion = (field) => {
+    setExpandedFields((prev) => ({
+      ...prev,
+      [field]: !prev[field], // Toggle the current field
+    }));
   };
 
   return (
@@ -81,19 +81,59 @@ const CustomerDetails = () => {
       <h2>Customer Details</h2>
       <div className='details-container'>
         {Object.entries(fieldsToDisplay).map(([key, value]) => (
-          <div className='detail-item' key={key}>
+          <div
+            className='detail-item'
+            key={key}
+            onClick={() => toggleFieldExpansion(key)}
+            role='button'
+            tabIndex={0}
+            onKeyPress={(e) =>
+              (e.key === 'Enter' || e.key === ' ') && toggleFieldExpansion(key)
+            }
+            aria-expanded={expandedFields[key] ? 'true' : 'false'}
+          >
             <strong>{key}:</strong>{' '}
             {value !== undefined && value !== null ? value.toString() : 'N/A'}
+            {/* Show additional details if the field is expanded */}
+            {(key === 'Amount' ||
+              key === 'Quantity' ||
+              key === 'Magazine' ||
+              key === 'Product') &&
+              expandedFields[key] && (
+                <div className='additional-info'>
+                  <p>
+                    <strong>Additional Information for {key}:</strong>
+                  </p>
+                  <p>{/* Add additional details here if needed */}</p>
+                </div>
+              )}
           </div>
         ))}
+      </div>
+
+      <div className='same-email-records'>
+        <h3>Other Records with the Same Email:</h3>
+        {filteredSameEmailRecords.length > 0 ? (
+          filteredSameEmailRecords.map((record) => (
+            <div className='record-item' key={record._id}>
+              <strong>Order ID:</strong> {record.Order_id} <br />
+              <strong>Product:</strong> {record.Product} <br />
+              <strong>Amount:</strong> {record.Amount} <br />
+              <strong>Status:</strong> {record.Status} <br />
+              <strong>Date:</strong>{' '}
+              {new Date(record.createdAt).toLocaleDateString()} <br />
+              <hr />
+            </div>
+          ))
+        ) : (
+          <p>No other records found with the same email.</p>
+        )}
       </div>
     </div>
   );
 };
 
 export default CustomerDetails;
-
-// // CustomerDetails.jsx
 
 // import { useEffect, useState } from 'react';
 // import { useParams } from 'react-router-dom';
@@ -103,36 +143,33 @@ export default CustomerDetails;
 // const CustomerDetails = () => {
 //   const { id } = useParams(); // Get the ID from the URL parameters
 //   const [customer, setCustomer] = useState(null);
+//   const [sameEmailRecords, setSameEmailRecords] = useState([]);
 //   const [loading, setLoading] = useState(true);
 //   const [error, setError] = useState(null);
+//   const [expandedFields, setExpandedFields] = useState({}); // Track which fields are expanded
 
 //   useEffect(() => {
 //     const fetchCustomerDetails = async () => {
-//       // Check if the ID is valid (for example, a valid ObjectId or a number)
+//       // Validate the ID format (e.g., ObjectId length)
 //       if (!id || id.length !== 24) {
 //         setError('Invalid customer ID');
 //         setLoading(false);
-//         return; // Stop further execution if ID is invalid
+//         return; // Stop execution if ID is invalid
 //       }
 
 //       try {
 //         const data = await fetchRecordById(id); // Call the API function
 //         console.log('Fetched data:', data); // Log the fetched data
 
-//         if (!data) {
+//         if (!data || !data.record) {
 //           setError('No customer found with this ID');
 //         } else {
-//           setCustomer(data);
+//           setCustomer(data.record);
+//           setSameEmailRecords(data.sameEmailRecords);
 //         }
 //       } catch (err) {
 //         console.error('Fetch error:', err); // Log the error for debugging
-
-//         // Handle error messages based on status code or other properties
-//         if (err.message.includes('404')) {
-//           setError('Customer not found');
-//         } else {
-//           setError('Error fetching customer details');
-//         }
+//         setError('Error fetching customer details');
 //       } finally {
 //         setLoading(false);
 //       }
@@ -141,26 +178,39 @@ export default CustomerDetails;
 //     fetchCustomerDetails();
 //   }, [id]); // Dependency array includes id to refetch when it changes
 
-//   if (loading) return <p>Loading...</p>;
-//   if (error) return <p>{error}</p>;
+//   if (loading) return <p className='loading'>Loading...</p>;
+//   if (error) return <p className='error'>{error}</p>;
 
 //   const fieldsToDisplay = {
-//     'First Name': customer['First Name'],
-//     'Last Name': customer['Last Name'],
+//     'First Name': customer.First_Name,
+//     'Last Name': customer.Last_Name,
 //     Magazine: customer.Magazine,
 //     Currency: customer.Currency,
 //     Amount: customer.Amount,
 //     Status: customer.Status,
-//     'Payment Type': customer['Payment Type'],
-//     'Payment Method': customer['Payment Method'],
+//     'Payment Type': customer.Payment_Type,
+//     'Payment Method': customer.Payment_Method,
 //     Email: customer.Email,
 //     Address: customer.Address,
-//     'ZIP Code': customer['ZIP Code'],
-//     'Order ID': customer['Order ID'],
+//     'ZIP Code': customer.Zip_Code,
+//     'Order ID': customer.Order_id,
 //     Product: customer.Product,
 //     Quantity: customer.Quantity,
 //     Discount: customer.Discount,
 //     Shipping: customer.Shipping,
+//   };
+
+//   // Filter out the main customer record from the sameEmailRecords
+//   const filteredSameEmailRecords = sameEmailRecords.filter(
+//     (record) => record._id !== customer._id
+//   );
+
+//   // Toggle the expansion of fields
+//   const toggleFieldExpansion = (field) => {
+//     setExpandedFields((prev) => ({
+//       ...prev,
+//       [field]: !prev[field], // Toggle the current field
+//     }));
 //   };
 
 //   return (
@@ -168,14 +218,186 @@ export default CustomerDetails;
 //       <h2>Customer Details</h2>
 //       <div className='details-container'>
 //         {Object.entries(fieldsToDisplay).map(([key, value]) => (
-//           <div className='detail-item' key={key}>
+//           <div
+//             className='detail-item'
+//             key={key}
+//             onClick={() => toggleFieldExpansion(key)}
+//             style={{ cursor: 'pointer' }}
+//           >
 //             <strong>{key}:</strong>{' '}
 //             {value !== undefined && value !== null ? value.toString() : 'N/A'}
+//             {/* Only show additional details if the field is expanded */}
+//             {(key === 'Amount' ||
+//               key === 'Quantity' ||
+//               key === 'Magazine' ||
+//               key === 'Product') &&
+//               expandedFields[key] && (
+//                 <div className='additional-info'>
+//                   <p>
+//                     <strong>Additional Information for {key}:</strong>
+//                   </p>
+//                   {/* Customize this part to show any extra information */}
+//                   <p>{/* Add additional details here if needed */}</p>
+//                 </div>
+//               )}
 //           </div>
 //         ))}
+//       </div>
+
+//       <div className='same-email-records'>
+//         <h3>Other Records with the Same Email:</h3>
+//         {filteredSameEmailRecords.length > 0 ? (
+//           filteredSameEmailRecords.map((record) => (
+//             <div className='record-item' key={record._id}>
+//               <strong>Order ID:</strong> {record.Order_id} <br />
+//               <strong>Product:</strong> {record.Product} <br />
+//               <strong>Amount:</strong> {record.Amount} <br />
+//               <strong>Status:</strong> {record.Status} <br />
+//               <strong>Date:</strong>{' '}
+//               {new Date(record.createdAt).toLocaleDateString()} <br />
+//               <hr />
+//             </div>
+//           ))
+//         ) : (
+//           <p>No other records found with the same email.</p>
+//         )}
 //       </div>
 //     </div>
 //   );
 // };
 
 // export default CustomerDetails;
+
+// // import { useEffect, useState } from 'react';
+// // import { useParams } from 'react-router-dom';
+// // import { fetchRecordById } from '../api/fetchapi'; // Adjust the path as necessary
+// // import './CustomerDetails.css'; // Import the CSS file for styling
+
+// // const CustomerDetails = () => {
+// //   const { id } = useParams(); // Get the ID from the URL parameters
+// //   const [customer, setCustomer] = useState(null);
+// //   const [sameEmailRecords, setSameEmailRecords] = useState([]);
+// //   const [loading, setLoading] = useState(true);
+// //   const [error, setError] = useState(null);
+// //   const [expandedFields, setExpandedFields] = useState({}); // Track which fields are expanded
+
+// //   useEffect(() => {
+// //     const fetchCustomerDetails = async () => {
+// //       // Validate the ID format (e.g., ObjectId length)
+// //       if (!id || id.length !== 24) {
+// //         setError('Invalid customer ID');
+// //         setLoading(false);
+// //         return; // Stop execution if ID is invalid
+// //       }
+
+// //       try {
+// //         const data = await fetchRecordById(id); // Call the API function
+// //         console.log('Fetched data:', data); // Log the fetched data
+
+// //         if (!data || !data.record) {
+// //           setError('No customer found with this ID');
+// //         } else {
+// //           setCustomer(data.record);
+// //           setSameEmailRecords(data.sameEmailRecords);
+// //         }
+// //       } catch (err) {
+// //         console.error('Fetch error:', err); // Log the error for debugging
+// //         setError('Error fetching customer details');
+// //       } finally {
+// //         setLoading(false);
+// //       }
+// //     };
+
+// //     fetchCustomerDetails();
+// //   }, [id]); // Dependency array includes id to refetch when it changes
+
+// //   if (loading) return <p>Loading...</p>;
+// //   if (error) return <p>{error}</p>;
+
+// //   const fieldsToDisplay = {
+// //     'First Name': customer.First_Name,
+// //     'Last Name': customer.Last_Name,
+// //     Magazine: customer.Magazine,
+// //     Currency: customer.Currency,
+// //     Amount: customer.Amount,
+// //     Status: customer.Status,
+// //     'Payment Type': customer.Payment_Type,
+// //     'Payment Method': customer.Payment_Method,
+// //     Email: customer.Email,
+// //     Address: customer.Address,
+// //     'ZIP Code': customer.Zip_Code,
+// //     'Order ID': customer.Order_id,
+// //     Product: customer.Product,
+// //     Quantity: customer.Quantity,
+// //     Discount: customer.Discount,
+// //     Shipping: customer.Shipping,
+// //   };
+
+// //   // Filter out the main customer record from the sameEmailRecords
+// //   const filteredSameEmailRecords = sameEmailRecords.filter(
+// //     (record) => record._id !== customer._id
+// //   );
+
+// //   // Toggle the expansion of fields
+// //   const toggleFieldExpansion = (field) => {
+// //     setExpandedFields((prev) => ({
+// //       ...prev,
+// //       [field]: !prev[field], // Toggle the current field
+// //     }));
+// //   };
+
+// //   return (
+// //     <div className='customer-details'>
+// //       <h2>Customer Details</h2>
+// //       <div className='details-container'>
+// //         {Object.entries(fieldsToDisplay).map(([key, value]) => (
+// //           <div
+// //             className='detail-item'
+// //             key={key}
+// //             onClick={() => toggleFieldExpansion(key)}
+// //             style={{ cursor: 'pointer' }}
+// //           >
+// //             <strong>{key}:</strong>{' '}
+// //             {value !== undefined && value !== null ? value.toString() : 'N/A'}
+// //             {/* Only show additional details if the field is expanded */}
+// //             {(key === 'Amount' ||
+// //               key === 'Quantity' ||
+// //               key === 'Magazine' ||
+// //               key === 'Product') &&
+// //               expandedFields[key] && (
+// //                 <div className='additional-info'>
+// //                   {/* Add more details you want to show on click */}
+// //                   <p>
+// //                     <strong>Additional Information for {key}:</strong>
+// //                   </p>
+// //                   {/* You can customize this part to show any extra information you want */}
+// //                   <p>{/* Add additional details here if needed */}</p>
+// //                 </div>
+// //               )}
+// //           </div>
+// //         ))}
+// //       </div>
+
+// //       <div className='same-email-records'>
+// //         {filteredSameEmailRecords.length > 0 ? (
+// //           filteredSameEmailRecords.map((record) => (
+// //             <div className='record-item' key={record._id}>
+// //               <strong>Order ID:</strong> {record.Order_id} <br />
+// //               <strong>Product:</strong> {record.Product} <br />
+// //               <strong>Amount:</strong> {record.Amount} <br />
+// //               <strong>Status:</strong> {record.Status} <br />
+// //               <strong>Date:</strong>{' '}
+// //               {new Date(record.createdAt).toLocaleDateString()} <br />
+// //               {/* You can display more fields as necessary */}
+// //               <hr />
+// //             </div>
+// //           ))
+// //         ) : (
+// //           <p>No other records found with the same email.</p>
+// //         )}
+// //       </div>
+// //     </div>
+// //   );
+// // };
+
+// // export default CustomerDetails;

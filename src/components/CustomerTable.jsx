@@ -63,6 +63,17 @@ const CustomerTable = () => {
     window.localStorage.removeItem('currCustId');
   }, []);
 
+  const filteredCustomers = customers.filter((customer) => {
+    const amount = parseFloat(customer.Amount);
+    const min = parseFloat(minPrice);
+    const max = parseFloat(maxPrice);
+
+    const isWithinMin = isNaN(min) || amount >= min;
+    const isWithinMax = isNaN(max) || amount <= max;
+
+    return isWithinMin && isWithinMax;
+  });
+
   const handleNotesUpdated = () => {
     loadRecords(); // Refresh records after note update
   };
@@ -357,7 +368,7 @@ const CustomerTable = () => {
               </tr>
             </thead>
             <tbody>
-              {customers.map((customer) => {
+              {filteredCustomers.map((customer) => {
                 return (
                   <tr key={customer._id}>
                     {tableFields.Name && (
