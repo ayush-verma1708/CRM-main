@@ -26,35 +26,6 @@ export const fetchUsers = async (page = 1, limit = 10, search = '') => {
   return fetchData('/api/users', page, limit, search);
 };
 
-// export const fetchRecords = async (page = 1, limit = 10, search = '') => {
-//   try {
-//     const response = await axios.get(`${API_URL}/records`, {
-//       params: { page, limit, search },
-//     });
-//     return response.data;
-//   } catch (error) {
-//     console.error('Error fetching records:', error);
-//     throw error;
-//   }
-// };
-// // fetchapi.js
-
-// export const fetchUsers = async (page = 1, limit = 10, search = '') => {
-//   try {
-//     const response = await axios.get(`http://localhost:5000/api/users`, {
-//       params: {
-//         page,
-//         limit,
-//         search,
-//       },
-//     });
-//     return response.data; // This will contain the user data
-//   } catch (error) {
-//     console.error('Error fetching users:', error);
-//     throw error; // Rethrow the error for further handling
-//   }
-// };
-
 export const fetchRecordById = async (id) => {
   try {
     const response = await fetch(`${API_URL}/records/${id}`);

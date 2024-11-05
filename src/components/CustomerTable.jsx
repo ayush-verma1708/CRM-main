@@ -30,6 +30,10 @@ const CustomerTable = () => {
   const [notes, setNotes] = useState(''); // Ensure setNotes is initialized here
   const [records, setRecords] = useState([]);
   const [fields, setFields] = useState([]); // For dynamic fields
+  const [NewfilteredCustomers, setNewFilteredCustomers] = useState(customers);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10); // Number of records per page
+  const [totalRecords, setTotalRecords] = useState(0); // Total records from API
 
   const [tableFields, setTableFields] = useState({
     Name: true,
@@ -40,7 +44,7 @@ const CustomerTable = () => {
     Order_id: true,
     Address: false,
     Product: false,
-    Quantity: false,
+    // Quantity: false,
     Model_Insta_Link: true,
     Note: true,
   });
@@ -49,19 +53,48 @@ const CustomerTable = () => {
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   // Function to fetch records from the server
-  const loadRecords = async () => {
-    try {
-      const data = await fetchRecords(); // Adjust this according to your API
-      setRecords(data); // Update records state
-    } catch (error) {
-      console.error('Error fetching records:', error);
-    }
-  };
+  // const loadRecords = async () => {
+  //   try {
+  //     const data = await fetchRecords(); // Adjust this according to your API
+  //     setRecords(data); // Update records state
+  //   } catch (error) {
+  //     console.error('Error fetching records:', error);
+  //   }
+  // };
   // Load records on component mount
   useEffect(() => {
     loadRecords();
     window.localStorage.removeItem('currCustId');
-  }, []);
+  }, [page]);
+
+  // Fetch records from the server
+  const loadRecords = async () => {
+    try {
+      const data = await fetchRecords(page, limit); // Fetch records with pagination
+      setCustomers(data.records);
+      setTotalRecords(data.total); // Assuming your API returns total records
+    } catch (error) {
+      console.error('Error fetching records:', error);
+      setError('Error fetching records');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Pagination controls
+  const totalPages = Math.ceil(totalRecords / limit); // Calculate total pages
+
+  const handleNextPage = () => {
+    if (page < totalPages) setPage((prev) => prev + 1);
+  };
+
+  const handlePreviousPage = () => {
+    if (page > 1) setPage((prev) => prev - 1);
+  };
+
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+  };
 
   const filteredCustomers = customers.filter((customer) => {
     const amount = parseFloat(customer.Amount);
@@ -76,6 +109,21 @@ const CustomerTable = () => {
 
   const handleNotesUpdated = () => {
     loadRecords(); // Refresh records after note update
+  };
+
+  const handleSearch = (query) => {
+    const tokens = query.toLowerCase().split(' ').filter(Boolean); // Split by space and remove empty strings
+    const filtered = customers.filter((customer) =>
+      tokens.every(
+        (token) => customer.name.toLowerCase().includes(token) // Check if each token matches any part of the name
+      )
+    );
+    setNewFilteredCustomers(filtered);
+  };
+  const handleChange = (e) => {
+    const value = e.target.value;
+    setSearch(value);
+    handleSearch(value); // Call search on every input change
   };
 
   // Updated fetchCustomers function
@@ -101,36 +149,22 @@ const CustomerTable = () => {
     const emailMap = {};
 
     data.forEach((customer) => {
-      // Create a unique key based on both Email Address and Email
-      // const emailKey = `${customer.Email}_${customer.Email}`;
-      // Create a unique key based on both Email Address and Email fields
       const email1 = customer.Email || '';
       const email2 = customer.Email || '';
       const emailKey = email1 === email2 ? email1 : `${email1}_${email2}`;
 
       if (emailMap[emailKey]) {
-        // If the key already exists, merge values
         const existingCustomer = emailMap[emailKey];
 
-        // Concatenate each product on a new line or with a bullet point
         existingCustomer.Product = existingCustomer.Product
-          ? `${existingCustomer.Product}\n- ${customer.Product}` // Bullet point style
-          : `- ${customer.Product}`; // Initialize with bullet for the first entry
-
-        // Concatenate Magazines
-        // existingCustomer.Magazines = existingCustomer.Magazines
-        //   ? `${existingCustomer.Magazines}, ${customer.Magazine}`
-        //   : customer.Magazine;
+          ? `${existingCustomer.Product}\n- ${customer.Product}` // Append new item with bullet point
+          : `- ${customer.Product}`;
 
         existingCustomer.Magazine += `, ${customer.Magazine}`;
-        // existingCustomer.Amount += existingCustomer.Amount + customer.Amount; // Example for Amount
         existingCustomer.Amount = Math.round(
           existingCustomer.Amount + customer.Amount
         );
 
-        // existingCustomer.Quantity +=
-        //   existingCustomer.Quantity + customer.Quantity; // Example for Amount
-        // Ensure Quantity is added correctly as an integer
         existingCustomer.Quantity += customer.Quantity;
 
         existingCustomer.Notes += ', ' + customer.Notes; // Example for Notes
@@ -258,32 +292,56 @@ const CustomerTable = () => {
         <div className='leftHeader'>
           <h3>All Customers</h3>
         </div>
+
         <div
           style={{
-            display: 'flex',
+            gap: '12px',
             flexDirection: 'row',
+            display: 'flex',
+
+            padding: '16px',
+            backgroundColor: '#f9f9f9',
+            borderRadius: '8px',
+            boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
           }}
         >
-          {Object.entries(tableFields).map(([key, value]) => {
-            return (
-              <label key={key}>
+          {Object.entries(tableFields).map(([key, value]) => (
+            <div
+              key={key}
+              style={{
+                // alignItems: 'center',
+                padding: '8px',
+                backgroundColor: '#ffffff',
+                borderRadius: '4px',
+                boxShadow: '0px 2px 6px rgba(0, 0, 0, 0.05)',
+              }}
+            >
+              <input
+                type='checkbox'
+                checked={value}
+                onChange={() =>
+                  setTableFields((prev) => ({
+                    ...prev,
+                    [key]: !value,
+                  }))
+                }
+                style={{ marginRight: '8px' }}
+              />
+              <label
+                style={{
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: '#333',
+                  cursor: 'pointer',
+                }}
+              >
                 {key}
-                <input
-                  type='checkbox'
-                  checked={value}
-                  onChange={(e) => {
-                    setTableFields((pv) => ({
-                      ...pv,
-                      [key]: !value,
-                    }));
-                  }}
-                />
               </label>
-            );
-          })}
+            </div>
+          ))}
         </div>
         <div className='rightHeader'>
-          <div className='search-customer'>
+          {/* <div className='search-customer'>
             <input
               className='search-bar'
               type='text'
@@ -293,6 +351,21 @@ const CustomerTable = () => {
               onKeyDown={handleKeyDown} // Add this line
             />
             <i className='fa-solid fa-magnifying-glass'></i>
+          </div> */}
+          <div className='search-customer'>
+            <input
+              className='search-bar'
+              type='text'
+              placeholder='Search'
+              value={search}
+              onChange={handleChange}
+            />
+            <i className='fa-solid fa-magnifying-glass'></i>
+            <div>
+              {filteredCustomers.map((customer) => (
+                <div key={customer.id}>{customer.name}</div>
+              ))}
+            </div>
           </div>
           <i
             className='fa-solid fa-filter'
@@ -358,8 +431,8 @@ const CustomerTable = () => {
                 {tableFields.Email && <th>Email</th>}
                 {tableFields.Address && <th>Address</th>}
                 {tableFields.Order_id && <th>Order Id</th>}
-                {tableFields.Model_Insta_Link ? <th>Insta Link</th> : null}
-                {tableFields.Quantity && <th>Quantity</th>}
+                {tableFields.Model_Insta_Link && <th>Insta Link</th>}
+                {/* {tableFields.Quantity && <th>Quantity</th>} */}
                 {tableFields.Product && <th>Products</th>}
                 {tableFields.Note && <th>Notes</th>}
                 <th>Edit Note</th>
@@ -377,7 +450,7 @@ const CustomerTable = () => {
                           href={`/records/${customer._id}`}
                           className='link-cell'
                         >
-                          {customer.First_Name} {customer.Last_Name}
+                          {customer.Full_Name}
                         </a>
                       </td>
                     )}
@@ -397,7 +470,7 @@ const CustomerTable = () => {
                           href={`/records/${customer._id}`}
                           className='link-cell'
                         >
-                          {customer.Amount}
+                          $ {customer.Amount}
                         </a>
                       </td>
                     )}
@@ -441,7 +514,7 @@ const CustomerTable = () => {
                         </a>
                       </td>
                     )}
-                    {tableFields.Model_Insta_Link ? (
+                    {tableFields.Model_Insta_Link && (
                       <td>
                         <a
                           href={`/records/${customer._id}`}
@@ -452,50 +525,33 @@ const CustomerTable = () => {
                             : 'N/A'}
                         </a>
                       </td>
-                    ) : (
-                      <td>N/A</td>
                     )}
 
-                    {tableFields.Quantity && (
-                      <td>
-                        <a
-                          href={`/records/${customer._id}`}
-                          className='link-cell'
-                        >
-                          {customer.Quantity}
-                        </a>
-                      </td>
-                    )}
                     {tableFields.Product && (
                       <td>
                         <a
                           href={`/records/${customer._id}`}
                           className='link-cell'
                         >
-                          {customer.Product}
-                          {/* <ul>
-                            {customer.Product.split(', ').map(
+                          <ul style={{ paddingLeft: '16px', margin: 0 }}>
+                            {customer.Product.split(',').map(
                               (product, index) => (
-                                <li key={index}>{product.trim()}</li>
+                                <li
+                                  key={index}
+                                  style={{
+                                    listStyleType: 'disc',
+                                    marginBottom: '4px',
+                                  }}
+                                >
+                                  {product.trim()}
+                                </li>
                               )
                             )}
-                          </ul> */}
+                          </ul>
                         </a>
                       </td>
                     )}
-                    {/* <td>
-                  {customer.Notes && customer.NoteDate ? (
-                    <a
-                      href={`/records/${customer._id}`}
-                      className='link-cell'
-                    >
-                      {customer.Notes} -{' '}
-                      {format(new Date(customer.NoteDate), 'MM/dd/yyyy')}
-                    </a>
-                  ) : (
-                    <span>No data available</span> // Placeholder for empty data
-                  )}
-                </td> */}
+
                     {tableFields.Note && (
                       <td>
                         <a

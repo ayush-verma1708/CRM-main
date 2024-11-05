@@ -7,6 +7,31 @@
   overflow-y: auto;
 }
 
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.pagination-controls button {
+  margin: 0 5px;
+  padding: 8px 12px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.pagination-controls button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.pagination-controls .active {
+  background-color: #0056b3;
+}
+
 .customer-table-container {
   max-height: 500px; /* Adjust as needed */
   overflow-y: auto;
