@@ -34,7 +34,14 @@ const CustomerTable = () => {
   const [page, setPage] = useState(1);
   const [limit] = useState(100); // Number of records per page
   const [totalRecords, setTotalRecords] = useState(0); // Total records from API
+  const [selectedMagazine, setSelectedMagazine] = useState(''); // For magazine filter
+  const uniqueMagazines = [
+    ...new Set(customers.map((customer) => customer.Magazine)),
+  ];
 
+  const handleMagazineChange = (e) => {
+    setSelectedMagazine(e.target.value); // Update the selected magazine
+  };
   const [tableFields, setTableFields] = useState({
     Name: true,
     Magazine: true,
@@ -167,7 +174,14 @@ const CustomerTable = () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await fetchRecords(1, 100, search, minPrice, maxPrice);
+      const data = await fetchRecords(
+        1,
+        100,
+        search,
+        minPrice,
+        maxPrice,
+        selectedMagazine
+      );
       const mergedCustomers = mergeCustomersByEmail(data.records); // Merge customers with the same Email Address and Email
       setCustomers(mergedCustomers);
 
@@ -223,7 +237,7 @@ const CustomerTable = () => {
 
   useEffect(() => {
     fetchCustomers();
-  }, [search, minPrice, maxPrice]);
+  }, [search, minPrice, maxPrice, selectedMagazine]);
 
   // Function to fetch the record notes
   const loadNotes = async () => {
@@ -333,6 +347,15 @@ const CustomerTable = () => {
         <div className='leftHeader'>
           <h3>All Customers</h3>
         </div>
+        {/* Other components and rendering logic */}
+        {/* <select value={selectedMagazine} onChange={handleMagazineChange}>
+          <option value=''>All Magazines</option>
+          {uniqueMagazines.map((magazine, index) => (
+            <option key={index} value={magazine}>
+              {magazine}
+            </option>
+          ))}
+        </select> */}
 
         <div
           style={{
