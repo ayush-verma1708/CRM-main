@@ -4,11 +4,12 @@ import axios from 'axios';
 const API_URL = 'http://localhost:5000'; // Replace with your backend API URL
 
 // Generalized function to fetch data from a given endpoint
-const fetchData = async (endpoint, page = 1, limit = 10, search = '') => {
+const fetchData = async (endpoint, page, limit, search = '', magazine = '') => {
   try {
     const response = await axios.get(`${API_URL}${endpoint}`, {
-      params: { page, limit, search },
+      params: { page, limit, search, magazine }, // Include magazine as a parameter
     });
+    console.log(page, limit, endpoint);
     return response.data;
   } catch (error) {
     console.error(`Error fetching data from ${endpoint}:`, error);
@@ -16,13 +17,27 @@ const fetchData = async (endpoint, page = 1, limit = 10, search = '') => {
   }
 };
 
+// // Generalized function to fetch data from a given endpoint
+// const fetchData = async (endpoint, page, limit, search = '') => {
+//   try {
+//     const response = await axios.get(`${API_URL}${endpoint}`, {
+//       params: { page, limit, search },
+//     });
+//     console.log(page, limit, endpoint);
+//     return response.data;
+//   } catch (error) {
+//     console.error(`Error fetching data from ${endpoint}:`, error);
+//     throw error;
+//   }
+// };
+
 // Fetch records from the API
-export const fetchRecords = async (page = 1, limit = 10, search = '') => {
+export const fetchRecords = async (page, limit, search = '') => {
   return fetchData('/records', page, limit, search);
 };
 
 // Fetch users from the API
-export const fetchUsers = async (page = 1, limit = 10, search = '') => {
+export const fetchUsers = async (page, limit, search = '') => {
   return fetchData('/api/users', page, limit, search);
 };
 

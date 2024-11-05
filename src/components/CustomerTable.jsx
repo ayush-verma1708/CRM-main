@@ -32,7 +32,7 @@ const CustomerTable = () => {
   const [fields, setFields] = useState([]); // For dynamic fields
   const [NewfilteredCustomers, setNewFilteredCustomers] = useState(customers);
   const [page, setPage] = useState(1);
-  const [limit] = useState(10); // Number of records per page
+  const [limit] = useState(100); // Number of records per page
   const [totalRecords, setTotalRecords] = useState(0); // Total records from API
 
   const [tableFields, setTableFields] = useState({
@@ -62,17 +62,28 @@ const CustomerTable = () => {
   //   }
   // };
   // Load records on component mount
-  useEffect(() => {
-    loadRecords();
-    window.localStorage.removeItem('currCustId');
-  }, [page]);
 
-  // Fetch records from the server
+  // // Fetch records from the server
+  // const loadRecords = async () => {
+  //   try {
+  //     const data = await fetchRecords(page, limit); // Fetch records with pagination
+  //     setCustomers(data.records);
+  //     setTotalRecords(data.total); // Assuming your API returns total records
+  //   } catch (error) {
+  //     console.error('Error fetching records:', error);
+  //     setError('Error fetching records');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+  // Load records from server, include pagination
+
   const loadRecords = async () => {
+    setLoading(true);
     try {
-      const data = await fetchRecords(page, limit); // Fetch records with pagination
+      const data = await fetchRecords(page, limit); // Fetch with pagination
       setCustomers(data.records);
-      setTotalRecords(data.total); // Assuming your API returns total records
+      setTotalRecords(data.total); // Set total records for calculating pages
     } catch (error) {
       console.error('Error fetching records:', error);
       setError('Error fetching records');
@@ -84,13 +95,38 @@ const CustomerTable = () => {
   // Pagination controls
   const totalPages = Math.ceil(totalRecords / limit); // Calculate total pages
 
-  const handleNextPage = () => {
-    if (page < totalPages) setPage((prev) => prev + 1);
+  const handlePreviousPage = () => {
+    if (page > 1) {
+      setPage((prevPage) => {
+        const newPage = prevPage - 1;
+
+        loadRecords(newPage); // Call loadRecords with the new page
+        return newPage;
+      });
+    }
   };
 
-  const handlePreviousPage = () => {
-    if (page > 1) setPage((prev) => prev - 1);
+  const handleNextPage = () => {
+    setPage((prevPage) => {
+      const newPage = prevPage + 1;
+      loadRecords(newPage); // Call loadRecords with the new page
+      return newPage;
+    });
   };
+
+  // const handlePreviousPage = () => {
+  //   if (page > 1) {
+  //     setPage(page - 1); // Decrement page
+  //   }
+  //   loadRecords();
+  // };
+
+  // const handleNextPage = () => {
+  //   if (page < totalPages) {
+  //     setPage(page + 1); // Increment page
+  //   }
+  //   loadRecords();
+  // };
 
   const handlePageChange = (newPage) => {
     setPage(newPage);
@@ -286,6 +322,11 @@ const CustomerTable = () => {
     setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
   };
 
+  useEffect(() => {
+    loadRecords();
+    window.localStorage.removeItem('currCustId');
+  }, [page]);
+
   return (
     <div className='customer-table-container'>
       <div className='table-header'>
@@ -341,17 +382,6 @@ const CustomerTable = () => {
           ))}
         </div>
         <div className='rightHeader'>
-          {/* <div className='search-customer'>
-            <input
-              className='search-bar'
-              type='text'
-              placeholder='Search'
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onKeyDown={handleKeyDown} // Add this line
-            />
-            <i className='fa-solid fa-magnifying-glass'></i>
-          </div> */}
           <div className='search-customer'>
             <input
               className='search-bar'
@@ -408,6 +438,23 @@ const CustomerTable = () => {
         <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
           <table className='customer-table'>
             <thead>
+              <div className='pagination-controls'>
+                <button onClick={handlePreviousPage} disabled={page === 1}>
+                  Previous
+                </button>
+                {Array.from({ length: totalPages }, (_, index) => (
+                  <button
+                    key={index + 1}
+                    onClick={() => handlePageChange(index + 1)}
+                    className={page === index + 1 ? 'active' : ''}
+                  >
+                    {index + 1}
+                  </button>
+                ))}
+                <button onClick={handleNextPage} disabled={page === totalPages}>
+                  Next
+                </button>
+              </div>
               <tr>
                 {tableFields.Name && <th>Name</th>}
                 {tableFields.Magazine && <th>Magazine</th>}
@@ -432,7 +479,6 @@ const CustomerTable = () => {
                 {tableFields.Address && <th>Address</th>}
                 {tableFields.Order_id && <th>Order Id</th>}
                 {tableFields.Model_Insta_Link && <th>Insta Link</th>}
-                {/* {tableFields.Quantity && <th>Quantity</th>} */}
                 {tableFields.Product && <th>Products</th>}
                 {tableFields.Note && <th>Notes</th>}
                 <th>Edit Note</th>
