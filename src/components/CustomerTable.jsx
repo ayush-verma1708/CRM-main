@@ -54,6 +54,7 @@ const CustomerTable = () => {
     // Quantity: false,
     Model_Insta_Link: true,
     Note: true,
+    Follow_Up_Date: true,
   });
 
   // Price range states
@@ -504,6 +505,7 @@ const CustomerTable = () => {
                 {tableFields.Model_Insta_Link && <th>Insta Link</th>}
                 {tableFields.Product && <th>Products</th>}
                 {tableFields.Note && <th>Notes</th>}
+                {tableFields.Follow_Up_Date && <th>Date</th>}
                 <th>Edit Note</th>
                 <th>Edit</th>
                 <th>Delete</th>
@@ -630,8 +632,21 @@ const CustomerTable = () => {
                           {(customer.Notes != undefined ||
                             customer.Notes != null ||
                             customer.Notes == '') && (
+                            <span>{customer?.Notes}</span>
+                          )}
+                        </a>
+                      </td>
+                    )}
+                    {tableFields.Follow_Up_Date && (
+                      <td>
+                        <a
+                          href={`/records/${customer._id}`}
+                          className='link-cell'
+                        >
+                          {(customer.Follow_Up_Date != undefined ||
+                            customer.Follow_Up_Date != null ||
+                            customer.Follow_Up_Date == '') && (
                             <span>
-                              {customer?.Notes} -{' '}
                               {new Date(customer?.NoteDate).toLocaleDateString(
                                 'en-US',
                                 {

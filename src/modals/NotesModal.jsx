@@ -9,9 +9,9 @@ const NotesModal = ({
   currentCustomerId,
 }) => {
   const [notes, setNotes] = useState(initialNotes || '');
-  const [noteDate, setNoteDate] = useState(
-    new Date().toISOString().slice(0, 10)
-  ); // Default to today's date in YYYY-MM-DD format
+  const [noteDate, setNoteDate] =
+    useState();
+    // new Date().toISOString().slice(0, 10) // Default to today's date in YYYY-MM-DD format
 
   const handleSave = async () => {
     try {

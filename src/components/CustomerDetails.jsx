@@ -45,8 +45,9 @@ const CustomerDetails = () => {
   if (error) return <p className='error'>{error}</p>;
 
   const fieldsToDisplay = {
-    'First Name': customer.First_Name,
-    'Last Name': customer.Last_Name,
+    // 'First Name': customer.First_Name,
+    // 'Last Name': customer.Last_Name,
+    'Full Name': customer.Full_Name,
     Magazine: customer.Magazine,
     Currency: customer.Currency,
     Amount: customer.Amount,
@@ -58,7 +59,7 @@ const CustomerDetails = () => {
     'ZIP Code': customer.Zip_Code,
     'Order ID': customer.Order_id,
     Product: customer.Product,
-    Quantity: customer.Quantity,
+    // Quantity: customer.Quantity,
     Discount: customer.Discount,
     Shipping: customer.Shipping,
   };
@@ -117,6 +118,7 @@ const CustomerDetails = () => {
           filteredSameEmailRecords.map((record) => (
             <div className='record-item' key={record._id}>
               <strong>Order ID:</strong> {record.Order_id} <br />
+              <strong>Magazine:</strong> {record.Magazine} <br />
               <strong>Product:</strong> {record.Product} <br />
               <strong>Amount:</strong> {record.Amount} <br />
               <strong>Status:</strong> {record.Status} <br />
