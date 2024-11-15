@@ -43,6 +43,11 @@ const CustomerDetails = () => {
 
   if (loading) return <p className='loading'>Loading...</p>;
   if (error) return <p className='error'>{error}</p>;
+  // Calculate the total amount
+  const totalAmount =
+    (customer?.Amount || 0) +
+    (customer?.Shipping || 0) -
+    (customer?.Discount || 0);
 
   const fieldsToDisplay = {
     // 'First Name': customer.First_Name,
@@ -50,7 +55,6 @@ const CustomerDetails = () => {
     'Full Name': customer.Full_Name,
     Magazine: customer.Magazine,
     Currency: customer.Currency,
-    Amount: customer.Amount,
     Status: customer.Status,
     'Payment Type': customer.Payment_Type,
     'Payment Method': customer.Payment_Method,
@@ -59,9 +63,13 @@ const CustomerDetails = () => {
     'ZIP Code': customer.Zip_Code,
     'Order ID': customer.Order_id,
     Product: customer.Product,
+    Amount: customer.Amount,
+    Shipping: customer.Shipping,
+    'Total Amount': totalAmount.toFixed(2), // Add Total Amount field here
+
     // Quantity: customer.Quantity,
     Discount: customer.Discount,
-    Shipping: customer.Shipping,
+    Instagram: customer.Model_Insta_Link,
   };
 
   // Filter out the main customer record from the sameEmailRecords

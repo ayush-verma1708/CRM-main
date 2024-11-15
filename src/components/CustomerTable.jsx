@@ -212,9 +212,22 @@ const CustomerTable = () => {
           : `- ${customer.Product}`;
 
         existingCustomer.Magazine += `, ${customer.Magazine}`;
-        existingCustomer.Amount = Math.round(
-          existingCustomer.Amount + customer.Amount
-        );
+        if (
+          customer.Payment_Type === 'Single payment' &&
+          customer.Status !== 'Failed'
+        ) {
+          existingCustomer.Amount = Math.round(
+            (existingCustomer.Amount || 0) + customer.Amount
+          );
+        } else {
+          console.log(
+            'Payment not added: Payment type is single, but status is failed.'
+          );
+        }
+
+        // existingCustomer.Amount = Math.round(
+        //   existingCustomer.Amount + customer.Amount
+        // );
 
         existingCustomer.Quantity += customer.Quantity;
 
@@ -499,6 +512,7 @@ const CustomerTable = () => {
                   </th>
                 )}
                 {tableFields.Country_Code && <th>Country Code</th>}
+                {tableFields.Payment_Type && <th>Payment Type</th>}
                 {tableFields.Email && <th>Email</th>}
                 {tableFields.Address && <th>Address</th>}
                 {tableFields.Order_id && <th>Order Id</th>}
