@@ -502,7 +502,18 @@ const CustomerTable = () => {
                 {tableFields.Email && <th>Email</th>}
                 {tableFields.Address && <th>Address</th>}
                 {tableFields.Order_id && <th>Order Id</th>}
-                {tableFields.Model_Insta_Link && <th>Insta Link</th>}
+                {tableFields.Model_Insta_Link && (
+                  <th>
+                    <a
+                      href={tableFields.Model_Insta_Link}
+                      target='_blank'
+                      rel='noopener noreferrer'
+                    >
+                      Insta Link
+                    </a>
+                  </th>
+                )}
+
                 {tableFields.Product && <th>Products</th>}
                 {tableFields.Note && <th>Notes</th>}
                 {tableFields.Follow_Up_Date && <th>Date</th>}
@@ -588,12 +599,10 @@ const CustomerTable = () => {
                     {tableFields.Model_Insta_Link && (
                       <td>
                         <a
-                          href={`/records/${customer._id}`}
+                          href={customer.user_info?.Model_Insta_Link}
                           className='link-cell'
                         >
-                          {customer.user_info?.Model_Insta_Link
-                            ? customer.user_info.Model_Insta_Link
-                            : 'N/A'}
+                          {customer.user_info?.Model_Insta_Link}
                         </a>
                       </td>
                     )}
