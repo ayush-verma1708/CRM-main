@@ -48,6 +48,7 @@ const CustomerTable = () => {
     Amount: true,
     Country_Code: false,
     Email: true,
+    Payment_Type: true,
     Order_id: true,
     Address: false,
     Product: false,
@@ -214,7 +215,7 @@ const CustomerTable = () => {
         existingCustomer.Magazine += `, ${customer.Magazine}`;
         if (
           customer.Payment_Type === 'Single payment' &&
-          customer.Status !== 'Failed'
+          customer.Status !== 'Declined'
         ) {
           existingCustomer.Amount = Math.round(
             (existingCustomer.Amount || 0) + customer.Amount
@@ -495,6 +496,7 @@ const CustomerTable = () => {
               <tr>
                 {tableFields.Name && <th>Name</th>}
                 {tableFields.Magazine && <th>Magazine</th>}
+                {tableFields.Payment_Type && <th>Payment_Type</th>}
                 {tableFields.Amount && (
                   <th
                     style={{ cursor: 'pointer' }}
@@ -512,7 +514,7 @@ const CustomerTable = () => {
                   </th>
                 )}
                 {tableFields.Country_Code && <th>Country Code</th>}
-                {tableFields.Payment_Type && <th>Payment Type</th>}
+
                 {tableFields.Email && <th>Email</th>}
                 {tableFields.Address && <th>Address</th>}
                 {tableFields.Order_id && <th>Order Id</th>}
@@ -550,6 +552,7 @@ const CustomerTable = () => {
                         </a>
                       </td>
                     )}
+
                     {tableFields.Magazine && (
                       <td>
                         <a
@@ -557,6 +560,17 @@ const CustomerTable = () => {
                           className='link-cell'
                         >
                           {customer.Magazine}
+                        </a>
+                      </td>
+                    )}
+
+                    {tableFields.Payment_Type && (
+                      <td>
+                        <a
+                          href={`/records/${customer._id}`}
+                          className='link-cell'
+                        >
+                          {customer.Payment_Type}
                         </a>
                       </td>
                     )}
@@ -660,7 +674,31 @@ const CustomerTable = () => {
                         </a>
                       </td>
                     )}
-                    {tableFields.Follow_Up_Date && (
+                    {/* {tableFields.Follow_Up_Date && ( */}
+                    <td>
+                      <a
+                        href={`/records/${customer._id}`}
+                        className='link-cell'
+                      >
+                        {(customer.NoteDate != undefined ||
+                          customer.NoteDate != null ||
+                          customer.NoteDate == '') && (
+                          <span>
+                            {new Date(customer?.NoteDate).toLocaleDateString(
+                              'en-US',
+                              {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                              }
+                            )}
+                          </span>
+                        )}
+                      </a>
+                    </td>
+                    {/* )} */}
+
+                    {/* {tableFields.notes && (
                       <td>
                         <a
                           href={`/records/${customer._id}`}
@@ -682,7 +720,7 @@ const CustomerTable = () => {
                           )}
                         </a>
                       </td>
-                    )}
+                    )} */}
 
                     <td>
                       <button
