@@ -65,10 +65,10 @@ const CustomerDetails = () => {
     Product: customer.Product,
     Amount: customer.Amount,
     Shipping: customer.Shipping,
+    Discount: customer.Discount,
     'Total Amount': totalAmount.toFixed(2), // Add Total Amount field here
 
     // Quantity: customer.Quantity,
-    Discount: customer.Discount,
     Instagram: customer.Model_Insta_Link,
   };
 

@@ -54,8 +54,8 @@ const CustomerTable = () => {
     Product: false,
     // Quantity: false,
     Model_Insta_Link: true,
-    Note: true,
-    Follow_Up_Date: true,
+    Note: false,
+    Follow_Up_Date: false,
   });
 
   // Price range states
@@ -674,29 +674,29 @@ const CustomerTable = () => {
                         </a>
                       </td>
                     )}
-                    {/* {tableFields.Follow_Up_Date && ( */}
-                    <td>
-                      <a
-                        href={`/records/${customer._id}`}
-                        className='link-cell'
-                      >
-                        {(customer.NoteDate != undefined ||
-                          customer.NoteDate != null ||
-                          customer.NoteDate == '') && (
-                          <span>
-                            {new Date(customer?.NoteDate).toLocaleDateString(
-                              'en-US',
-                              {
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric',
-                              }
-                            )}
-                          </span>
-                        )}
-                      </a>
-                    </td>
-                    {/* )} */}
+                    {tableFields.Follow_Up_Date && (
+                      <td>
+                        <a
+                          href={`/records/${customer._id}`}
+                          className='link-cell'
+                        >
+                          {(customer.NoteDate != undefined ||
+                            customer.NoteDate != null ||
+                            customer.NoteDate == '') && (
+                            <span>
+                              {new Date(customer?.NoteDate).toLocaleDateString(
+                                'en-US',
+                                {
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric',
+                                }
+                              )}
+                            </span>
+                          )}
+                        </a>
+                      </td>
+                    )}
 
                     {/* {tableFields.notes && (
                       <td>
