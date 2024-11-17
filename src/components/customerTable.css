@@ -4,10 +4,11 @@
   margin: 0 auto 1rem;
   padding: 1rem 1.5rem;
   width: 92.5%;
-  overflow-y: auto;
+  /* overflow-y: auto; */
 }
 
 .pagination-controls {
+  margin-top: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -43,7 +44,7 @@
 
 .customer-table-container {
   max-height: 500px; /* Adjust as needed */
-  overflow-y: auto;
+  /* overflow-y: auto; */
   margin: 0 auto;
 }
 
@@ -105,14 +106,22 @@
 
 /* Header styles */
 .customer-table th {
-  padding: 10px; /* Add padding for spacing */
-  background-color: #f1f1f1; /* Light background color */
-  color: #333; /* Text color */
-  font-weight: bold; /* Make the text bold */
-  text-align: left; /* Align text to the left */
-  position: relative; /* Position for pseudo-elements */
+  position: sticky;
+  top: 0; /* Keeps the header at the top */
+  background-color: #f8f9fa; /* Light gray background for header */
+  z-index: 1; /* Ensures the header stays above the table rows */
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.1); /* Optional: Adds a subtle shadow */
+}
+.customer-table tbody tr:nth-child(even) {
+  background-color: #f9f9f9; /* Zebra striping */
 }
 
+.customer-table tbody tr:hover {
+  background-color: #f1f1f1; /* Highlight row on hover */
+}
+.customer-table .link-cell:hover {
+  text-decoration: underline;
+}
 /* Add hover effect */
 .customer-table th:hover {
   background-color: #e0e0e0; /* Change background on hover */

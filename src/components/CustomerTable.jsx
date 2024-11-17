@@ -622,7 +622,7 @@ const CustomerTable = () => {
           </button>
         </div> */}
 
-        <button onClick={fetchCustomers}>Filter</button>
+        {/* <button onClick={fetchCustomers}>Filter</button> */}
       </div>
 
       {loading ? (
@@ -633,48 +633,6 @@ const CustomerTable = () => {
         <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
           <table className='customer-table'>
             <thead>
-              {/* <div className='pagination-controls'>
-                <button onClick={handlePreviousPage} disabled={page === 1}>
-                  Previous
-                </button>
-                {Array.from({ length: totalPages }, (_, index) => (
-                  <button
-                    key={index + 1}
-                    onClick={() => handlePageChange(index + 1)}
-                    className={page === index + 1 ? 'active' : ''}
-                  >
-                    {index + 1}
-                  </button>
-                ))}
-                <button onClick={handleNextPage} disabled={page === totalPages}>
-                  Next
-                </button>
-              </div> */}
-
-              {/* <div className='pagination-controls'>
-                <button
-                  onClick={() => handlePageChange(page - 1)}
-                  disabled={page === 1}
-                >
-                  Previous
-                </button>
-                {Array.from({ length: totalPages }, (_, index) => (
-                  <button
-                    key={index + 1}
-                    onClick={() => handlePageChange(index + 1)}
-                    className={page === index + 1 ? 'active' : ''}
-                  >
-                    {index + 1}
-                  </button>
-                ))}
-                <button
-                  onClick={() => handlePageChange(page + 1)}
-                  disabled={page === totalPages}
-                >
-                  Next
-                </button>
-              </div> */}
-
               <tr>
                 {tableFields.Name && <th>Name</th>}
                 {tableFields.Magazine && <th>Magazine</th>}
