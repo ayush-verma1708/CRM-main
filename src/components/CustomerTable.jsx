@@ -439,93 +439,190 @@ const CustomerTable = () => {
             onChange={(e) => setMaxPrice(e.target.value)}
           />
         </div>
+
+        <div
+          className='pagination-controls'
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '8px',
+            flexWrap: 'wrap',
+          }}
+        >
+          <button
+            onClick={() => handlePageChange(page - 1)}
+            disabled={page === 1}
+            style={{
+              padding: '8px 12px',
+              borderRadius: '4px',
+              border: '1px solid #d1d5db', // Neutral light gray for border
+              backgroundColor: page === 1 ? '#f9fafb' : '#ffffff', // Disabled: very light gray; Normal: white
+              color: page === 1 ? '#9ca3af' : '#374151', // Disabled: gray; Normal: dark gray
+              cursor: page === 1 ? 'not-allowed' : 'pointer',
+              fontSize: '14px',
+              fontWeight: '500',
+              transition: 'background-color 0.3s, color 0.3s',
+            }}
+          >
+            Previous
+          </button>
+
+          {Array.from({ length: totalPages }, (_, index) => {
+            const pageNum = index + 1;
+
+            if (
+              pageNum === 1 ||
+              pageNum === totalPages ||
+              (pageNum >= page - 2 && pageNum <= page + 2)
+            ) {
+              return (
+                <button
+                  key={pageNum}
+                  onClick={() => handlePageChange(pageNum)}
+                  className={page === pageNum ? 'active' : ''}
+                  style={{
+                    padding: '8px 12px',
+                    borderRadius: '4px',
+                    border: '1px solid #d1d5db',
+                    backgroundColor: page === pageNum ? '#2563eb' : '#ffffff', // Active: blue; Normal: white
+                    color: page === pageNum ? '#ffffff' : '#374151', // Active: white; Normal: dark gray
+                    fontWeight: page === pageNum ? '600' : '500',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    transition: 'background-color 0.3s, color 0.3s',
+                  }}
+                >
+                  {pageNum}
+                </button>
+              );
+            }
+
+            if (pageNum === page - 3 || pageNum === page + 3) {
+              return (
+                <span
+                  key={pageNum}
+                  style={{
+                    padding: '8px',
+                    color: '#9ca3af', // Light gray for ellipsis
+                    fontSize: '14px',
+                  }}
+                >
+                  ...
+                </span>
+              );
+            }
+
+            return null;
+          })}
+
+          <button
+            onClick={() => handlePageChange(page + 1)}
+            disabled={page === totalPages}
+            style={{
+              padding: '8px 12px',
+              borderRadius: '4px',
+              border: '1px solid #d1d5db',
+              backgroundColor: page === totalPages ? '#f9fafb' : '#ffffff',
+              color: page === totalPages ? '#9ca3af' : '#374151',
+              cursor: page === totalPages ? 'not-allowed' : 'pointer',
+              fontSize: '14px',
+              fontWeight: '500',
+              transition: 'background-color 0.3s, color 0.3s',
+            }}
+          >
+            Next
+          </button>
+        </div>
+
+        {/* <div
+          className='pagination-controls'
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '8px',
+            flexWrap: 'wrap',
+          }}
+        >
+          <button
+            onClick={() => handlePageChange(page - 1)}
+            disabled={page === 1}
+            style={{
+              padding: '8px 12px',
+              borderRadius: '4px',
+              border: '1px solid #ccc',
+              backgroundColor: page === 1 ? '#f0f0f0' : '#fff',
+              cursor: page === 1 ? 'not-allowed' : 'pointer',
+            }}
+          >
+            Previous
+          </button>
+
+          {Array.from({ length: totalPages }, (_, index) => {
+            const pageNum = index + 1;
+
+            // Show limited buttons: first, last, current, and neighbors
+            if (
+              pageNum === 1 ||
+              pageNum === totalPages ||
+              (pageNum >= page - 2 && pageNum <= page + 2)
+            ) {
+              return (
+                <button
+                  key={pageNum}
+                  onClick={() => handlePageChange(pageNum)}
+                  className={page === pageNum ? 'active' : ''}
+                  style={{
+                    padding: '8px 12px',
+                    borderRadius: '4px',
+                    border: '1px solid #ccc',
+                    backgroundColor: page === pageNum ? '#007bff' : '#fff',
+                    color: page === pageNum ? '#fff' : '#000',
+                    fontWeight: page === pageNum ? 'bold' : 'normal',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {pageNum}
+                </button>
+              );
+            }
+
+            // Add ellipsis for skipped pages
+            if (pageNum === page - 3 || pageNum === page + 3) {
+              return (
+                <span
+                  key={pageNum}
+                  style={{
+                    padding: '8px',
+                    color: '#999',
+                    fontSize: '14px',
+                  }}
+                >
+                  ...
+                </span>
+              );
+            }
+
+            return null;
+          })}
+
+          <button
+            onClick={() => handlePageChange(page + 1)}
+            disabled={page === totalPages}
+            style={{
+              padding: '8px 12px',
+              borderRadius: '4px',
+              border: '1px solid #ccc',
+              backgroundColor: page === totalPages ? '#f0f0f0' : '#fff',
+              cursor: page === totalPages ? 'not-allowed' : 'pointer',
+            }}
+          >
+            Next
+          </button>
+        </div> */}
+
         <button onClick={fetchCustomers}>Filter</button>
-      </div>
-      <div
-        className='pagination-controls'
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          gap: '8px',
-          flexWrap: 'wrap',
-        }}
-      >
-        <button
-          onClick={() => handlePageChange(page - 1)}
-          disabled={page === 1}
-          style={{
-            padding: '8px 12px',
-            borderRadius: '4px',
-            border: '1px solid #ccc',
-            backgroundColor: page === 1 ? '#f0f0f0' : '#fff',
-            cursor: page === 1 ? 'not-allowed' : 'pointer',
-          }}
-        >
-          Previous
-        </button>
-
-        {Array.from({ length: totalPages }, (_, index) => {
-          const pageNum = index + 1;
-
-          // Show limited buttons: first, last, current, and neighbors
-          if (
-            pageNum === 1 ||
-            pageNum === totalPages ||
-            (pageNum >= page - 2 && pageNum <= page + 2)
-          ) {
-            return (
-              <button
-                key={pageNum}
-                onClick={() => handlePageChange(pageNum)}
-                className={page === pageNum ? 'active' : ''}
-                style={{
-                  padding: '8px 12px',
-                  borderRadius: '4px',
-                  border: '1px solid #ccc',
-                  backgroundColor: page === pageNum ? '#007bff' : '#fff',
-                  color: page === pageNum ? '#fff' : '#000',
-                  fontWeight: page === pageNum ? 'bold' : 'normal',
-                  cursor: 'pointer',
-                }}
-              >
-                {pageNum}
-              </button>
-            );
-          }
-
-          // Add ellipsis for skipped pages
-          if (pageNum === page - 3 || pageNum === page + 3) {
-            return (
-              <span
-                key={pageNum}
-                style={{
-                  padding: '8px',
-                  color: '#999',
-                  fontSize: '14px',
-                }}
-              >
-                ...
-              </span>
-            );
-          }
-
-          return null;
-        })}
-
-        <button
-          onClick={() => handlePageChange(page + 1)}
-          disabled={page === totalPages}
-          style={{
-            padding: '8px 12px',
-            borderRadius: '4px',
-            border: '1px solid #ccc',
-            backgroundColor: page === totalPages ? '#f0f0f0' : '#fff',
-            cursor: page === totalPages ? 'not-allowed' : 'pointer',
-          }}
-        >
-          Next
-        </button>
       </div>
 
       {loading ? (
