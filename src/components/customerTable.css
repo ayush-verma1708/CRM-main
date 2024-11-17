@@ -10,26 +10,34 @@
 .pagination-controls {
   display: flex;
   justify-content: center;
-  margin-top: 20px;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .pagination-controls button {
-  margin: 0 5px;
   padding: 8px 12px;
-  border: none;
-  background-color: #007bff;
-  color: white;
-  cursor: pointer;
   border-radius: 4px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.pagination-controls button.active {
+  background-color: #007bff;
+  color: #fff;
+  font-weight: bold;
 }
 
 .pagination-controls button:disabled {
-  background-color: #ccc;
+  background-color: #f0f0f0;
   cursor: not-allowed;
 }
 
-.pagination-controls .active {
-  background-color: #0056b3;
+.pagination-controls span {
+  padding: 8px;
+  color: #999;
+  font-size: 14px;
 }
 
 .customer-table-container {

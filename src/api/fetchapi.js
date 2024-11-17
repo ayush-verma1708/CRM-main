@@ -17,20 +17,6 @@ const fetchData = async (endpoint, page, limit, search = '', magazine = '') => {
   }
 };
 
-// // Generalized function to fetch data from a given endpoint
-// const fetchData = async (endpoint, page, limit, search = '') => {
-//   try {
-//     const response = await axios.get(`${API_URL}${endpoint}`, {
-//       params: { page, limit, search },
-//     });
-//     console.log(page, limit, endpoint);
-//     return response.data;
-//   } catch (error) {
-//     console.error(`Error fetching data from ${endpoint}:`, error);
-//     throw error;
-//   }
-// };
-
 // Fetch records from the API
 export const fetchRecords = async (page, limit, search = '') => {
   return fetchData('/records', page, limit, search);

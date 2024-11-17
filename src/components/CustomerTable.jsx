@@ -14,7 +14,6 @@ import { faSortUp, faSortDown } from '@fortawesome/free-solid-svg-icons';
 import { format } from 'date-fns';
 
 const CustomerTable = () => {
-  const [customers, setCustomers] = useState([]);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [customerToDelete, setCustomerToDelete] = useState(null);
   const [openUpdateDetailsModal, setOpenUpdateDetailsModal] = useState(false);
@@ -26,22 +25,19 @@ const CustomerTable = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0); // Total number of pages
+
+  const [customers, setCustomers] = useState([]);
+  const [totalRecords, setTotalRecords] = useState(0); // Total records from API
   const [sortOrder, setSortOrder] = useState('asc'); // State for sorting order
-  const [notes, setNotes] = useState(''); // Ensure setNotes is initialized here
-  const [records, setRecords] = useState([]);
   const [fields, setFields] = useState([]); // For dynamic fields
   const [NewfilteredCustomers, setNewFilteredCustomers] = useState(customers);
-  const [page, setPage] = useState(1);
   const [limit] = useState(100); // Number of records per page
-  const [totalRecords, setTotalRecords] = useState(0); // Total records from API
-  const [selectedMagazine, setSelectedMagazine] = useState(''); // For magazine filter
   const uniqueMagazines = [
     ...new Set(customers.map((customer) => customer.Magazine)),
   ];
 
-  const handleMagazineChange = (e) => {
-    setSelectedMagazine(e.target.value); // Update the selected magazine
-  };
   const [tableFields, setTableFields] = useState({
     Name: true,
     Magazine: true,
@@ -61,31 +57,6 @@ const CustomerTable = () => {
   // Price range states
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
-  // Function to fetch records from the server
-  // const loadRecords = async () => {
-  //   try {
-  //     const data = await fetchRecords(); // Adjust this according to your API
-  //     setRecords(data); // Update records state
-  //   } catch (error) {
-  //     console.error('Error fetching records:', error);
-  //   }
-  // };
-  // Load records on component mount
-
-  // // Fetch records from the server
-  // const loadRecords = async () => {
-  //   try {
-  //     const data = await fetchRecords(page, limit); // Fetch records with pagination
-  //     setCustomers(data.records);
-  //     setTotalRecords(data.total); // Assuming your API returns total records
-  //   } catch (error) {
-  //     console.error('Error fetching records:', error);
-  //     setError('Error fetching records');
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-  // Load records from server, include pagination
 
   const loadRecords = async () => {
     setLoading(true);
@@ -100,9 +71,6 @@ const CustomerTable = () => {
       setLoading(false);
     }
   };
-
-  // Pagination controls
-  const totalPages = Math.ceil(totalRecords / limit); // Calculate total pages
 
   const handlePreviousPage = () => {
     if (page > 1) {
@@ -123,22 +91,13 @@ const CustomerTable = () => {
     });
   };
 
-  // const handlePreviousPage = () => {
-  //   if (page > 1) {
-  //     setPage(page - 1); // Decrement page
-  //   }
-  //   loadRecords();
+  // const handlePageChange = (newPage) => {
+  //   setPage(newPage);
   // };
-
-  // const handleNextPage = () => {
-  //   if (page < totalPages) {
-  //     setPage(page + 1); // Increment page
-  //   }
-  //   loadRecords();
-  // };
-
+  // Handle page change
   const handlePageChange = (newPage) => {
-    setPage(newPage);
+    setPage(newPage); // Update the current page state
+    fetchCustomers(newPage); // Fetch data for the selected page
   };
 
   const filteredCustomers = customers.filter((customer) => {
@@ -171,25 +130,49 @@ const CustomerTable = () => {
     handleSearch(value); // Call search on every input change
   };
 
+  // // Updated fetchCustomers function
+  // const fetchCustomers = async () => {
+  //   setLoading(true);
+  //   setError(null);
+  //   try {
+  //     const data = await fetchRecords(1, 100, search, minPrice, maxPrice);
+  //     const mergedCustomers = mergeCustomersByEmail(data.records); // Merge customers with the same Email Address and Email
+  //     setCustomers(mergedCustomers);
+
+  //     if (mergedCustomers.length > 0) {
+  //       setFields(Object.keys(mergedCustomers[0]));
+  //     }
+  //   } catch (err) {
+  //     setError('Error fetching customers');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
   // Updated fetchCustomers function
-  const fetchCustomers = async () => {
+  const fetchCustomers = async (currentPage = 1, pageSize = 100) => {
     setLoading(true);
     setError(null);
     try {
+      // Pass currentPage dynamically
       const data = await fetchRecords(
-        1,
-        100,
+        currentPage,
+        pageSize,
         search,
         minPrice,
-        maxPrice,
-        selectedMagazine
+        maxPrice
       );
-      const mergedCustomers = mergeCustomersByEmail(data.records); // Merge customers with the same Email Address and Email
-      setCustomers(mergedCustomers);
 
+      // Merge customers with the same Email Address
+      const mergedCustomers = mergeCustomersByEmail(data.records);
+
+      // Update customer data and fields
+      setCustomers(mergedCustomers);
       if (mergedCustomers.length > 0) {
         setFields(Object.keys(mergedCustomers[0]));
       }
+
+      // Set pagination data if available in API response
+      setTotalPages(data.totalPages || Math.ceil(data.totalRecords / pageSize)); // Calculate total pages
     } catch (err) {
       setError('Error fetching customers');
     } finally {
@@ -252,7 +235,7 @@ const CustomerTable = () => {
 
   useEffect(() => {
     fetchCustomers();
-  }, [search, minPrice, maxPrice, selectedMagazine]);
+  }, [search, minPrice, maxPrice]);
 
   // Function to fetch the record notes
   const loadNotes = async () => {
@@ -362,15 +345,6 @@ const CustomerTable = () => {
         <div className='leftHeader'>
           <h3>All Customers</h3>
         </div>
-        {/* Other components and rendering logic */}
-        {/* <select value={selectedMagazine} onChange={handleMagazineChange}>
-          <option value=''>All Magazines</option>
-          {uniqueMagazines.map((magazine, index) => (
-            <option key={index} value={magazine}>
-              {magazine}
-            </option>
-          ))}
-        </select> */}
 
         <div
           style={{
@@ -467,6 +441,92 @@ const CustomerTable = () => {
         </div>
         <button onClick={fetchCustomers}>Filter</button>
       </div>
+      <div
+        className='pagination-controls'
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: '8px',
+          flexWrap: 'wrap',
+        }}
+      >
+        <button
+          onClick={() => handlePageChange(page - 1)}
+          disabled={page === 1}
+          style={{
+            padding: '8px 12px',
+            borderRadius: '4px',
+            border: '1px solid #ccc',
+            backgroundColor: page === 1 ? '#f0f0f0' : '#fff',
+            cursor: page === 1 ? 'not-allowed' : 'pointer',
+          }}
+        >
+          Previous
+        </button>
+
+        {Array.from({ length: totalPages }, (_, index) => {
+          const pageNum = index + 1;
+
+          // Show limited buttons: first, last, current, and neighbors
+          if (
+            pageNum === 1 ||
+            pageNum === totalPages ||
+            (pageNum >= page - 2 && pageNum <= page + 2)
+          ) {
+            return (
+              <button
+                key={pageNum}
+                onClick={() => handlePageChange(pageNum)}
+                className={page === pageNum ? 'active' : ''}
+                style={{
+                  padding: '8px 12px',
+                  borderRadius: '4px',
+                  border: '1px solid #ccc',
+                  backgroundColor: page === pageNum ? '#007bff' : '#fff',
+                  color: page === pageNum ? '#fff' : '#000',
+                  fontWeight: page === pageNum ? 'bold' : 'normal',
+                  cursor: 'pointer',
+                }}
+              >
+                {pageNum}
+              </button>
+            );
+          }
+
+          // Add ellipsis for skipped pages
+          if (pageNum === page - 3 || pageNum === page + 3) {
+            return (
+              <span
+                key={pageNum}
+                style={{
+                  padding: '8px',
+                  color: '#999',
+                  fontSize: '14px',
+                }}
+              >
+                ...
+              </span>
+            );
+          }
+
+          return null;
+        })}
+
+        <button
+          onClick={() => handlePageChange(page + 1)}
+          disabled={page === totalPages}
+          style={{
+            padding: '8px 12px',
+            borderRadius: '4px',
+            border: '1px solid #ccc',
+            backgroundColor: page === totalPages ? '#f0f0f0' : '#fff',
+            cursor: page === totalPages ? 'not-allowed' : 'pointer',
+          }}
+        >
+          Next
+        </button>
+      </div>
 
       {loading ? (
         <p>Loading...</p>
@@ -476,7 +536,7 @@ const CustomerTable = () => {
         <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
           <table className='customer-table'>
             <thead>
-              <div className='pagination-controls'>
+              {/* <div className='pagination-controls'>
                 <button onClick={handlePreviousPage} disabled={page === 1}>
                   Previous
                 </button>
@@ -492,7 +552,32 @@ const CustomerTable = () => {
                 <button onClick={handleNextPage} disabled={page === totalPages}>
                   Next
                 </button>
-              </div>
+              </div> */}
+
+              {/* <div className='pagination-controls'>
+                <button
+                  onClick={() => handlePageChange(page - 1)}
+                  disabled={page === 1}
+                >
+                  Previous
+                </button>
+                {Array.from({ length: totalPages }, (_, index) => (
+                  <button
+                    key={index + 1}
+                    onClick={() => handlePageChange(index + 1)}
+                    className={page === index + 1 ? 'active' : ''}
+                  >
+                    {index + 1}
+                  </button>
+                ))}
+                <button
+                  onClick={() => handlePageChange(page + 1)}
+                  disabled={page === totalPages}
+                >
+                  Next
+                </button>
+              </div> */}
+
               <tr>
                 {tableFields.Name && <th>Name</th>}
                 {tableFields.Magazine && <th>Magazine</th>}
