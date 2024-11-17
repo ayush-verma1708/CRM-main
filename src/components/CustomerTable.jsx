@@ -130,25 +130,6 @@ const CustomerTable = () => {
     handleSearch(value); // Call search on every input change
   };
 
-  // // Updated fetchCustomers function
-  // const fetchCustomers = async () => {
-  //   setLoading(true);
-  //   setError(null);
-  //   try {
-  //     const data = await fetchRecords(1, 100, search, minPrice, maxPrice);
-  //     const mergedCustomers = mergeCustomersByEmail(data.records); // Merge customers with the same Email Address and Email
-  //     setCustomers(mergedCustomers);
-
-  //     if (mergedCustomers.length > 0) {
-  //       setFields(Object.keys(mergedCustomers[0]));
-  //     }
-  //   } catch (err) {
-  //     setError('Error fetching customers');
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-  // Updated fetchCustomers function
   const fetchCustomers = async (currentPage = 1, pageSize = 100) => {
     setLoading(true);
     setError(null);
@@ -162,7 +143,6 @@ const CustomerTable = () => {
         maxPrice
       );
 
-      // Merge customers with the same Email Address
       const mergedCustomers = mergeCustomersByEmail(data.records);
 
       // Update customer data and fields
@@ -209,10 +189,6 @@ const CustomerTable = () => {
           );
         }
 
-        // existingCustomer.Amount = Math.round(
-        //   existingCustomer.Amount + customer.Amount
-        // );
-
         existingCustomer.Quantity += customer.Quantity;
 
         existingCustomer.Notes += ', ' + customer.Notes; // Example for Notes
@@ -221,8 +197,7 @@ const CustomerTable = () => {
             new Date(existingCustomer.NoteDate),
             new Date(customer.NoteDate)
           )
-        ); // Keep the latest date
-        // You can merge other fields as needed
+        );
       } else {
         // If it doesn't exist, add to the map
         emailMap[emailKey] = { ...customer }; // Use a shallow copy to avoid mutation
