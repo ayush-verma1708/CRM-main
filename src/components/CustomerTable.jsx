@@ -58,42 +58,36 @@ const CustomerTable = () => {
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
 
-  const loadRecords = async () => {
+  const loadRecords = async (currentPage = 1, pageSize = 100) => {
     setLoading(true);
+    setError(null);
     try {
-      const data = await fetchRecords(page, limit); // Fetch with pagination
-      setCustomers(data.records);
-      setTotalRecords(data.total); // Set total records for calculating pages
-    } catch (error) {
-      console.error('Error fetching records:', error);
-      setError('Error fetching records');
+      // Pass currentPage dynamically
+      const data = await fetchRecords(
+        currentPage,
+        pageSize,
+        search,
+        minPrice,
+        maxPrice
+      );
+
+      const mergedCustomers = mergeCustomersByEmail(data.records);
+
+      // Update customer data and fields
+      setCustomers(mergedCustomers);
+      if (mergedCustomers.length > 0) {
+        setFields(Object.keys(mergedCustomers[0]));
+      }
+
+      // Set pagination data if available in API response
+      setTotalPages(data.totalPages || Math.ceil(data.totalRecords / pageSize)); // Calculate total pages
+    } catch (err) {
+      setError('Error fetching customers');
     } finally {
       setLoading(false);
     }
   };
 
-  const handlePreviousPage = () => {
-    if (page > 1) {
-      setPage((prevPage) => {
-        const newPage = prevPage - 1;
-
-        loadRecords(newPage); // Call loadRecords with the new page
-        return newPage;
-      });
-    }
-  };
-
-  const handleNextPage = () => {
-    setPage((prevPage) => {
-      const newPage = prevPage + 1;
-      loadRecords(newPage); // Call loadRecords with the new page
-      return newPage;
-    });
-  };
-
-  // const handlePageChange = (newPage) => {
-  //   setPage(newPage);
-  // };
   // Handle page change
   const handlePageChange = (newPage) => {
     setPage(newPage); // Update the current page state
@@ -228,10 +222,6 @@ const CustomerTable = () => {
       loadNotes();
     }
   }, [currentCustomerId]);
-
-  useEffect(() => {
-    fetchCustomers();
-  }, [search, minPrice, maxPrice]); // Add minPrice and maxPrice to the dependency array
 
   const handleFilter = () => {
     setOpenFilterModal(true);
